@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Morfana simple.long test</title>
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/rangy/1.2.3/rangy-core.js"></script>
+<script type="text/x-morfana-config">Morfana.configure({autostart: false});</script>
+<script type="text/javascript" src="./../morfana.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){$('.destination').html($('.source').html()); Morfana.draw();});
+</script>
+<style>
+div {border: 1px dashed #FF00FF; float: left; margin: 25px; padding: 25px; width: 500px;} 
+</style>
+</head>
+<body>
+<div class="source">
+	<span data-morfana-markup="ko:1-4;ko:5-9;ok:10-10;">Авиапо́чта</span> 
+	<span data-morfana-markup="ok:3-5;ok:9-12;ko:1-2;ko:6-8;">двумя́ста́ми</span> / слова без разметки / слова без разметки /
+	<span data-morfana-markup="ok:4-6;ok:12-15;ko:1-2;ko:9-10;">дв-умя́-ст-а́ми</span> 
+	<span data-morfana-markup="ko:1-5;ok:6-6;ko:7-10;su:11-11;ok:12-13;os:1-11">десятиэтажных</span>
+	<span data-morfana-markup="ko:1-5;su:6-8;ok:9-10">деревянных</span> / слова без разметки / слова без разметки /
+	<span data-morfana-markup="pr:1-2;ko:3-4;su:5-5;su:6-6;ok:7-7">затмила</span>
+	<span data-morfana-markup="ko:1-4;ok:0;">пять</span> / слова без разметки / слова без разметки /
+	<span data-morfana-markup="ko:1-5;ok:6-8">лебеде́й</span> / слова без разметки / слова без разметки /
+	<span data-morfana-markup="ko:1-4;ko:6-8;ok:0;">Иван-чай</span><br><br>
+	<span data-morfana-markup="ko:1-5;ok:6-6;ko:7-10;su:11-11;ok:12-13;os:1-11">дес<span style="letter-spacing: 10px;">яти<b>этажны</b>х</span></span><br>
+	<span data-morfana-markup="ko:1-5;ok:6-6;ko:7-10;su:11-11;ok:12-13;os:1-11" style="letter-spacing: 10px;">д<span style="letter-spacing: 5px;"><span style="color: red;">еся</span>ти<b>этажны</b>х</span></span><br>
+	<span data-morfana-markup="ko:1-5;ok:6-6;ko:7-10;su:11-11;ok:12-13;os:1-11">д<span style="font-size: 0.5em;">есятиэта</span>жных</span><br>
+	<span data-morfana-markup="ko:1-5;ok:6-6;ko:7-10;su:11-11;ok:12-13;os:1-11" style="font-size: 0.3em;">д<span style="font-size: 2.5em;">есятиэта</span>жных</span>
+</div>
+<div class="destination" style="font-family: Verdana; font-size: 12pt; line-height: 2;"></div>
+<div class="destination" style="font-family: Verdana; font-size: 12pt;"></div>
+<div class="destination" style="font-family: Verdana; font-size: 12pt; text-transform: uppercase;"></div>
+<div class="destination" style="font-family: Times New Roman; font-size: 14pt;"></div>
+<div class="destination" style="font-family: monospace; font-size: 14pt;"></div>
+<div class="destination" style="font-family: Arial; font-size: 14pt;"></div>
+<div class="destination" style="font-family: Georgia; font-size: 16pt;"></div>
+<div class="destination" style="font-family: Verdana; font-size: 30pt;"></div>
+<div class="destination" style="font-family: Verdana; font-size: 8pt;"></div>
+<div class="destination" style="font-family: Comic Sans MS; font-size: 12pt;"></div>
+</body>
+</html>
