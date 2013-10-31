@@ -1,11 +1,11 @@
 /*
- Morfana. HTML typesetting for morphemic analysis (russian language)
+ Morfana. JavaScript display engine for morphemic analysis in russian language
  http://morfana.ru
  http://github.com/kityan/morfana
 
- Copyright 2013, Pavel Kityan
+ Copyright 2013, Pavel Kityan (pavel@kityan.ru)
  Licensed under the MIT license.
- Version: 1.0.0a
+ Version: 1.0.1a
  Build date: 31 October 2013
 */
 
@@ -85,6 +85,7 @@ function preprocess(el)
 	for (var i=0, qty = morfems.length; i< qty; i++)
 	{
 		
+		// добавить trim-ы!
 		var tmp = morfems[i].split(":");
 		if (tmp[1])
 		{
@@ -348,12 +349,13 @@ var w = (!nullOk)?(metrics.w + ((stop == start)?10:0)):(h * 0.3+10);
 var x = (!nullOk)?(metrics.x + ((start!=stop)?5:0)):(metrics.w - h*.5 + 3); 
 var hDiff = metrics.hDiff;
 
-console.log(hDiff);
+// console.log(hDiff);
 // компенсируем паддинги, поскольку будучи примененными к разным символам теряются, при таком методе рассчете ширины как сейчас 
 if ((stop - start) > 0 && !nullOk){w += 10; x-=5;} 
 
 // почему не rect?
-return {h: metrics.h, str:'<svg class="morfana-graphics"  style="z-index: -1; position: absolute; left: ' + (x - 10) + 'px; top: ' + ((hDiff <= 0)?(-(h*0.13)):(hDiff*.5-h*0.13)) + 'px; width: ' + w + 'px; height: ' + h + 'px;" xmlns="http://www.w3.org/2000/svg" version="1.1">\
+// "z-index: -1" в стиле svg позволяет сделать буквы внутри окончания доступными для мыши, но в ряде случаев окончания пропадают (см. wordpress). Решить проблему.
+return {h: metrics.h, str:'<svg class="morfana-graphics"  style="position: absolute; left: ' + (x - 10) + 'px; top: ' + ((hDiff <= 0)?(-(h*0.13)):(hDiff*.5-h*0.13)) + 'px; width: ' + w + 'px; height: ' + h + 'px;" xmlns="http://www.w3.org/2000/svg" version="1.1">\
 <path d="M '+(2.5)+' '+(h-2)+' L '+(w-3)+' '+(h-2)+' L '+(w-3)+' '+(2)+' L '+(3)+' '+(2)+' L '+(3)+' '+(h-1.5)+'" style="stroke:rgb(150,150,150);stroke-width:1.5" fill="transparent"/>\
 </svg>'};
 

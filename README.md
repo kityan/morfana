@@ -1,6 +1,6 @@
-morfana
+Morfana
 =======
 
-JavaScript-библиотека автоматической HTML-верстки для морфемного анализа слов (русский язык)
+JavaScript display engine for morphemic analysis in russian language
 
-[Демосайт](http://morfana.ru/)
+[Official website](http://morfana.ru/)
