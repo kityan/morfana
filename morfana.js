@@ -5,12 +5,14 @@
 
  Copyright 2013, Pavel Kityan (pavel@kityan.ru)
  Licensed under the MIT license.
- Version: 1.0.1a
- Build date: 31 October 2013
+ Version: 1.0.2a
+ Build date: 4 November 2013
 */
 
 
 (function( window ) {
+
+var debug = true;
 
 // умолчания
 var config = {
@@ -174,6 +176,7 @@ function wrapMorfanaPadding(start, stop, left, map, obj)
 	var newNode = document.createElement('span');
 	jQuery(newNode).css('padding-right',(left)?'5px':((metrics.h)+'px'));
 	jQuery(newNode).addClass('morfana-paddings');
+
 	rng.surroundContents(newNode);
 
 	map = getLettersMap(obj);
@@ -184,90 +187,95 @@ function wrapMorfanaPadding(start, stop, left, map, obj)
 	newNode = document.createElement('span');
 	if(left){jQuery(newNode).css('padding-left','5px');}
 	jQuery(newNode).addClass('morfana-paddings');
+
 	rng.surroundContents(newNode);
 
 }
 
 
 /**
+	Установка для всех родительских элементов obj вплоть до stopParent
+ */
+function setAllParents(obj, param, value, stopParent)
+{
+	obj.css(param, value);
+	if (obj.parent()[0] != stopParent[0])
+	{
+		setAllParents(obj.parent(), param, value, stopParent);
+	}
+}
+
+
+/**
  * Функция расчета метрик слова целиком или морфемы: высоты, ширины, смещения морфемы относительно начала слова
  */
-
-function getMetrics(obj,start,stop)
+ function getMetrics(obj,start,stop, savePaddings)
 {
-	var map = getLettersMap(obj);
+	var objHTML = obj.html();
 	
-	// вот тут как-то можно обойтись одной строкой?
-//	obj.append('<div style="visibility: hidden; width: auto; height: auto; position: absolute; left: 0px; border: 1px solid blue;" id="tmpdv" />'); // поставить left -10000px?
-	obj.append('<div style="width: auto; height: auto; position: absolute; left: 0px; border: 1px solid blue;" id="tmpdv" />'); 
-	var tmpdv = obj.children("#tmpdv");
+	// временый элемент внутри элемента со словом, для метрик
+	var tmpdv = $('<div style="' + ((debug)?"":"visibility: hidden; border: 2px solid blue; ") + 'width: auto; height: auto; position: absolute; left: 0px;" id="tmpdv" />')
+	obj.append(tmpdv); 
 	
-	var rng = rangy.createRange(); 
-	rng.setStart(map[0]['obj'], map[0]['index']);
-	rng.setEnd(map[stop-1]['obj'], map[stop-1]['index']+1);	
-	tmpdv.append(rng.cloneContents());
-	//alert('stop');
-	
-	var map2 = getLettersMap(tmpdv);
-	rng = rangy.createRange(); 
-	var lli = map2.length - 1;
-	rng.setStart(map2[lli]['obj'], map2[lli]['index']);
-	rng.setEnd(map2[lli]['obj'], map2[lli]['index']+1);
-
-	var newNode = document.createElement('span');
-	jQuery(newNode).css('letter-spacing','normal');
-	
-	rng.surroundContents(newNode);
-	var w = tmpdv.width();
-	tmpdv.text('');
-	
-	// определяем высоту слова (с line-height в normal)
-
-	lli = map.length - 1;	
-	rng = rangy.createRange();
-	rng.setStart(map[0]['obj'], map[0]['index']);
-	rng.setEnd(map[lli]['obj'], map[lli]['index']);
-	tmpdv.append(rng.cloneContents());	
+	// определяем высоту всего слова, принудительно установив line-height в normal
+	tmpdv.html(objHTML);
 	var h2 = tmpdv.height();	
 	setAllChildren(tmpdv, 'line-height', 'normal');
-	var h = tmpdv.height();
+	var h = tmpdv.height();	
 	
-	tmpdv.text('');
+
+	// определяем смещение и ширину участка слова, заданного start/stop
+	//alert(objHTML)
+	tmpdv.html(objHTML);
+	var map = getLettersMap(tmpdv);
+	var li = map.length - 1;
+	var newNode;
+	
+	var rng = rangy.createRange(); 
+	
+	// отсекаем лишнее от слова, если нужно
+	if ((stop - 1) < li)
+	{
+		rng.setStart(map[stop]['obj'], map[stop]['index']);
+		rng.setEnd(map[li]['obj'], map[li]['index']+1);	
+		rng.deleteContents();
+		// зачищаем остатки, которые не убирает rng.deleteContents()
+		tmpdv.find('.morfana-paddings').each(function(){var obj = jQuery(this); if (obj.text() == ''){obj.remove()}});
+	}
+	
+	// сейчас в tmpdv содерджится фрагмент слова, ширина которого дает нам x+w
+	// мы сбрасываем letter-spacing и padding-right последнего символа, чтобы  значок морфемы заканчивался на символе, а не после него
+	
+	rng.setStart(map[stop-1]['obj'], map[stop-1]['index']);
+	rng.setEnd(map[stop-1]['obj'], map[stop-1]['index']+1);
+	newNode = document.createElement('span');
+	jQuery(newNode).css('letter-spacing','normal');
+	rng.surroundContents(newNode);
+	
+	// здесь в w пока содержится x
+	var w = tmpdv.width();
 
 	// ищем x
-
 	if (start == 1)
 	{
 		var x = 0;
 	}
 	else
 	{
-		rng = rangy.createRange(); 
-		rng.setStart(map[0]['obj'], map[0]['index']);
-		rng.setEnd(map[start-1]['obj'], map[start-1]['index']);
+		// требуется новая карта
+		var map = getLettersMap(tmpdv);
+		rng.setStart(map[start-1]['obj'], map[start-1]['index']);
 		rng.setEnd(map[stop-1]['obj'], map[stop-1]['index']+1);
-		tmpdv.append(rng.cloneContents());
-		
-		var map3 = getLettersMap(tmpdv);		
-		rng = rangy.createRange();
-		rng.setStart(map3[start-1]['obj'], map3[start-1]['index']);
-		rng.setEnd(map3[stop-1]['obj'], map3[stop-1]['index']+1);
 		rng.deleteContents();
-		
 		var x = tmpdv.width();
-		tmpdv.text('');
 	}
 	tmpdv.remove();
-	
 	w-=x;
 
 	var hDiff = h2-h;
 	return {w: w, h: h, x: x, hDiff: hDiff}
 	
 }
-
-
-
 
 function process(p)
 {
@@ -337,19 +345,18 @@ var nullOk = false;
 
 if (start == 0) // т.е. нулевое окончание
 {
-start = 1;
-stop = map.length;
-nullOk = true;
+	start = 1;
+	stop = map.length;
+	nullOk = true;
 }
 
-var metrics = getMetrics(obj,start,stop);
+var metrics = getMetrics(obj,start,stop, true);
 
 var h = metrics.h*1.4; 
 var w = (!nullOk)?(metrics.w + ((stop == start)?10:0)):(h * 0.3+10); 
 var x = (!nullOk)?(metrics.x + ((start!=stop)?5:0)):(metrics.w - h*.5 + 3); 
 var hDiff = metrics.hDiff;
 
-// console.log(hDiff);
 // компенсируем паддинги, поскольку будучи примененными к разным символам теряются, при таком методе рассчете ширины как сейчас 
 if ((stop - start) > 0 && !nullOk){w += 10; x-=5;} 
 
@@ -368,7 +375,6 @@ function createImage(morphemeType, obj, start, stop, map)
 var metrics = getMetrics(obj,start,stop);
 var w = metrics.w;  var h = metrics.h; var x = metrics.x; var hDiff = metrics.hDiff;
 var hm = 0.34;	
-console.log(hDiff);
 switch (morphemeType)
 {
 	case 'ko': return {h: h, str: '<svg class="morfana-graphics"  style="position: absolute; left: ' + x + 'px; top: ' + ((hDiff <= 0)?(-(h*0.75)):(hDiff*0.5-h*.75)) + 'px; width: ' + w + 'px; height: ' + h + 'px;" xmlns="http://www.w3.org/2000/svg" version="1.1"><path d="M '+2+' '+(h-2)+' C '+(w/3)+' '+h*.4+', '+(w*2/3)+' '+h*.4+', '+(w-2)+' '+(h-2)+'" style="stroke:rgb(150,150,150);stroke-width:1.5" fill="transparent"/></svg>'};
