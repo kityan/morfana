@@ -5,18 +5,19 @@
 <title>Morfana simple.long test</title>
 <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/rangy/1.2.3/rangy-core.js"></script>
-<script type="text/x-morfana-config">Morfana.configure({autostart: false});</script>
+<script type="text/x-morfana-config">Morfana.configure({autoStart: false});</script>
 <script type="text/javascript" src="./../morfana.js"></script>
-<script type="text/javascript">
-$(document).ready(function(){$('.destination').html($('.source').html()); Morfana.draw();});
-</script>
+<script type="text/javascript">$(document).ready(function(){$('.destination').html($('.source').html()); Morfana.draw();});</script>
 <style>
 div {border: 1px dashed #FF00FF; float: left; margin: 25px; padding: 25px; width: 500px;} 
 </style>
 </head>
 <body>
 <div class="source">
-	<span data-morfana-markup="ko:1-4;ko:5-9;ok:10-10;">Авиапо́чта</span> 
+	<span data-morfana-markup="ko: 1 - 4;	
+ ko:5-9;
+
+ok:10-10;">Авиапо́чта</span> 
 	<span data-morfana-markup="ok:3-5;ok:9-12;ko:1-2;ko:6-8;">двумя́ста́ми</span> / слова без разметки / слова без разметки /
 	<span data-morfana-markup="ok:4-6;ok:12-15;ko:1-2;ko:9-10;">дв-умя́-ст-а́ми</span> 
 	<span data-morfana-markup="ko:1-5;ok:6-6;ko:7-10;su:11-11;ok:12-13;os:1-11">десятиэтажных</span>
@@ -32,7 +33,7 @@ div {border: 1px dashed #FF00FF; float: left; margin: 25px; padding: 25px; width
 	<br><br>
 	<span data-morfana-markup="ko:1-5;ok:6-6;ko:7-10;su:11-11;ok:12-13;os:1-11"><strong>десят</strong>и<span style="color: #FF00FF;">этаж</span>ный</span>
 </div>
-<div class="destination" style="font-family: Verdana; font-size: 12pt; line-height: 2;"></div>
+<div class="destination" style="font-family: Verdana; font-size: 12pt; line-height: 25px;"></div>
 <div class="destination" style="font-family: Verdana; font-size: 12pt;"></div>
 <div class="destination" style="font-family: Verdana; font-size: 12pt; text-transform: uppercase;"></div>
 <div class="destination" style="font-family: Times New Roman; font-size: 14pt;"></div>
