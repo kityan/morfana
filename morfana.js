@@ -28,7 +28,10 @@ var queue = new Array();
 var processingOrder = ['ok', 'pr','ko', 'su', 'os', 'nullok'];
 
 // morphemes' descriptions
-var morfemsDescription = {pr: {name: 'приставка'}, ko: {name: 'корень'}, su: {name: 'суффикс'}, os: {name: 'основа'}, ok: {name: 'окончание'}}
+var morfemsDescription = {pr: {name: 'приставка'}, ko: {name: 'корень'}, su: {name: 'суффикс'}, os: {name: 'основа'}, ok: {name: 'окончание'}};
+
+// new zIndex
+var newZ = 500;
 
 // check for dependencies 
 if (!window.jQuery) {return;}
@@ -179,6 +182,10 @@ function wrapMorfanaPadding(start, stop, left, map, obj)
 	var newNode = document.createElement('span');
 	jQuery(newNode).css('padding-right',(left)?'5px':((h)+'px'));
 	jQuery(newNode).addClass('morfana-paddings');
+	jQuery(newNode).css({
+		position: 'relative',
+		zIndex: newZ - 1
+	})
 
 	rng.surroundContents(newNode);
 
@@ -190,6 +197,10 @@ function wrapMorfanaPadding(start, stop, left, map, obj)
 	newNode = document.createElement('span');
 	if(left){jQuery(newNode).css('padding-left','5px');}
 	jQuery(newNode).addClass('morfana-paddings');
+	jQuery(newNode).css({
+		position: 'relative',
+		zIndex: newZ - 1
+	})
 
 	rng.surroundContents(newNode);
 
@@ -346,8 +357,7 @@ function createOk(obj,start,stop, map)
 	if ((stop - start) > 0 && !nullOk){w += 10; x-=5;} 
 
 	// почему не rect?
-	// "z-index: -1" в стиле svg позволяет сделать буквы внутри окончания доступными для мыши, но в ряде случаев окончания пропадают (см. wordpress). Решить проблему.
-	return '<svg class="morfana-graphics"  style="position: absolute; left: ' + (x - 10) + 'px; top: ' + ((hDiff <= 0)?(-(h*0.13)):(hDiff*.5-h*0.13)) + 'px; width: ' + w + 'px; height: ' + h + 'px;" xmlns="http://www.w3.org/2000/svg" version="1.1">\
+	return '<svg class="morfana-graphics"  style="z-index: ' + (newZ - 1) + ';position: absolute; left: ' + (x - 10) + 'px; top: ' + ((hDiff <= 0)?(-(h*0.13)):(hDiff*.5-h*0.13)) + 'px; width: ' + w + 'px; height: ' + h + 'px;" xmlns="http://www.w3.org/2000/svg" version="1.1">\
 			<path d="M '+(2.5)+' '+(h-2)+' L '+(w-3)+' '+(h-2)+' L '+(w-3)+' '+(2)+' L '+(3)+' '+(2)+' L '+(3)+' '+(h-1.5)+'" style="stroke:rgb(150,150,150);stroke-width:1.5" fill="transparent"/>\
 			</svg>';
 }
