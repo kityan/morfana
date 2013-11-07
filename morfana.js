@@ -9,8 +9,20 @@
  Build date: 4 November 2013
 */
 
-
-(function( window ) {
+(function (root, factory) {
+	if (typeof define === 'function' && define.amd) {
+		// AMD. Register as an anonymous module.
+		define(['jQuery', 'rangy'], factory);
+	} else if (typeof exports === 'object') {
+		// Node. Does not work with strict CommonJS, but
+		// only CommonJS-like enviroments that support module.exports,
+		// like Node.
+		module.exports = factory(require('jQuery', 'rangy'));
+	} else {
+		// Browser globals (root is window)
+		root.returnExports = factory(root.jQuery, root.rangy);
+	}
+}(this, function ($, rangy) {
 
 var debug = false;
 var config = {}	;
@@ -30,12 +42,8 @@ var processingOrder = ['ok', 'pr','ko', 'su', 'os', 'nullok'];
 // morphemes' descriptions
 var morfemsDescription = {pr: {name: 'приставка'}, ko: {name: 'корень'}, su: {name: 'суффикс'}, os: {name: 'основа'}, ok: {name: 'окончание'}}
 
-// check for dependencies 
-if (!window.jQuery) {return;}
-if (!window.rangy) {return;}
-
 // DOM ready
-jQuery(document).ready(function(){
+$(document).ready(function(){
 	// reading user config
    	var scripts = document.getElementsByTagName("script");
 	for (var i = 0, qty = scripts.length; i < qty; i++) 
@@ -74,7 +82,7 @@ function getAllIndexOf(str, symbol)
 
 function preprocess(el)
 {
-	var obj = jQuery(el);
+	var obj = $(el);
 
 	// ищем все ударения, чтобы компенсировать в указателя на символы слова
 	/*
@@ -152,7 +160,7 @@ function setAllChildren(obj, param, value)
 	var qty = obj[0].children.length;
 	for (var i=0; i < qty; i++)
 	{
-		setAllChildren(jQuery(obj[0].children[i]), param, value);
+		setAllChildren($(obj[0].children[i]), param, value);
 	}	
 }
 
@@ -177,8 +185,8 @@ function wrapMorfanaPadding(start, stop, left, map, obj)
 	rng.setStart(map[stop-1]['obj'], map[stop-1]['index']);
 	rng.setEnd(map[stop-1]['obj'], map[stop-1]['index']+1);	
 	var newNode = document.createElement('span');
-	jQuery(newNode).css('padding-right',(left)?'5px':((h)+'px'));
-	jQuery(newNode).addClass('morfana-paddings');
+	$(newNode).css('padding-right',(left)?'5px':((h)+'px'));
+	$(newNode).addClass('morfana-paddings');
 
 	rng.surroundContents(newNode);
 
@@ -188,8 +196,8 @@ function wrapMorfanaPadding(start, stop, left, map, obj)
 	rng.setStart(map[start-1]['obj'], map[start-1]['index']);
 	rng.setEnd(map[start-1]['obj'], map[start-1]['index']+1);	
 	newNode = document.createElement('span');
-	if(left){jQuery(newNode).css('padding-left','5px');}
-	jQuery(newNode).addClass('morfana-paddings');
+	if(left){$(newNode).css('padding-left','5px');}
+	$(newNode).addClass('morfana-paddings');
 
 	rng.surroundContents(newNode);
 
@@ -228,7 +236,7 @@ function wrapMorfanaPadding(start, stop, left, map, obj)
 		rng.setEnd(map[li]['obj'], map[li]['index']+1);
 		rng.deleteContents();
 		// cleaning up after rng.deleteContents()
-		tmpdv.find('.morfana-paddings').each(function(){var obj = jQuery(this); if (obj.text() == ''){obj.remove()}});
+		tmpdv.find('.morfana-paddings').each(function(){var obj = $(this); if (obj.text() == ''){obj.remove()}});
 	}
 	// сейчас в tmpdv содерджится фрагмент слова, ширина которого дает нам x+w
 	// мы сбрасываем letter-spacing и padding-right последнего символа, чтобы  значок морфемы заканчивался на символе, а не после него
@@ -236,7 +244,7 @@ function wrapMorfanaPadding(start, stop, left, map, obj)
 	rng.setStart(map[stop-1]['obj'], map[stop-1]['index']);
 	rng.setEnd(map[stop-1]['obj'], map[stop-1]['index']+1);
 	newNode = document.createElement('span');
-	jQuery(newNode).css('letter-spacing','normal');
+	$(newNode).css('letter-spacing','normal');
 	rng.surroundContents(newNode);
 	
 	// this w value has x value inside
@@ -379,7 +387,7 @@ function getLettersMap(obj)
 			var data = obj[0].childNodes[i].data;
 			if (data == undefined)
 			{
-				  shift = createLettersMap(jQuery(obj[0].childNodes[i]), shift);
+				  shift = createLettersMap($(obj[0].childNodes[i]), shift);
 			}
 			else
 			{
@@ -404,13 +412,13 @@ function draw (el,markup)
 	{
 		if (markup != undefined)
 		{
-			jQuery(el).attr('data-morfana-markup', markup);
+			$(el).attr('data-morfana-markup', markup);
 		}
-		jQuery(el).each(enqueue);
+		$(el).each(enqueue);
 	}
 	else
 	{
-		jQuery('[data-morfana-markup]').each(enqueue);
+		$('[data-morfana-markup]').each(enqueue);
 	}
 	
 	queue.reverse();
@@ -456,6 +464,6 @@ Morfana.draw = draw;
 Morfana.configure = configure;
 Morfana.getLettersMap = getLettersMap;
 Morfana.getMorfemDescription = getMorfemDescription;
-window['Morfana'] = Morfana;
+return Morfana;
 
-})( window );
+}));
