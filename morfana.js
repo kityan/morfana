@@ -20,11 +20,12 @@
 		module.exports = factory(require('jQuery', 'rangy'));
 	} else {
 		// Browser globals (root is window)
-		root.returnExports = factory(root.jQuery, root.rangy);
+		// root.returnExports = factory(root.jQuery, root.rangy);
+		root.Morfana = factory(root.jQuery, root.rangy);
 	}
 }(this, function ($, rangy) {
 
-var debug = false;
+var debug = true;
 var config = {}	;
 
 // default values
@@ -37,7 +38,7 @@ freezeWord: false 	// add vertical padding to word's span or "freeze" word in it
 var queue = new Array();
 
 // order of processing
-var processingOrder = ['ok', 'pr','ko', 'su', 'os', 'nullok'];
+var processingOrder = ['ok', 'pr','ko', 'su', 'os'];
 
 // morphemes' descriptions
 var morfemsDescription = {pr: {name: 'приставка'}, ko: {name: 'корень'}, su: {name: 'суффикс'}, os: {name: 'основа'}, ok: {name: 'окончание'}}
@@ -51,7 +52,7 @@ $(document).ready(function(){
 	    var type = String(scripts[i].type).replace(/ /g,"");
 		if (type.match(/^text\/x-morfana-config(;.*)?$/)) 
 		{
-			window.eval(scripts[i].innerHTML);
+			eval(scripts[i].innerHTML);
 			scripts[i].innerHTML = '';
 		}
     }
@@ -108,8 +109,7 @@ function preprocess(el)
 		{
 			var arr = tmp[1].split("-");
 			var m = tmp[0];
-			// because of the start value for zero ending is 0, we should mark as "nullok" it for making correct order of processing
-			if (m == 'ok' && arr[0] == 0){m = 'nullok';} 
+			//if (m == 'ok' && arr[0] == 0){m = 'nullok';} 
 		
 			if (!tmparr[m])
 			{
@@ -121,7 +121,6 @@ function preprocess(el)
 				// array for start for current morpheme
 				tmparr[m][arr[0]] = new Array(); 
 			}			
-			// here we use strictly tmp[0] but not m, because "nullok" is only for making correct order of processing
 			tmparr[m][arr[0]].push({name: tmp[0], range: arr}); 
 
 		}
@@ -152,6 +151,20 @@ function preprocess(el)
 }
 
 /**
+	Setting element's and all its parents' CSS property
+ */
+function setAllParents(obj, stopId, param, value)
+{
+	if (obj.attr('id') != stopId)
+	{
+		obj.css(param, value);
+		setAllParents(obj.parent(), stopId, param, value);
+	}
+}
+
+
+
+/**
 	Setting element's and all its children's CSS property
  */
 function setAllChildren(obj, param, value)
@@ -178,7 +191,7 @@ function wrapMorfanaPadding(start, stop, left, map, obj)
 
 	if (!left)
 	{
-		var h = getMetrics(obj,start,stop, true);
+		var h = getMetrics(obj,start,stop, true, false);
 	}
 
 	var rng = rangy.createRange();
@@ -207,7 +220,7 @@ function wrapMorfanaPadding(start, stop, left, map, obj)
 /**
  * Calculating word's height and morpheme's x and width
  */
- function getMetrics(obj,start,stop, returnHeight)
+ function getMetrics(obj,start,stop, returnHeight, savePaddings)
 {
 	var objHTML = obj.html();
 	
@@ -247,10 +260,24 @@ function wrapMorfanaPadding(start, stop, left, map, obj)
 	$(newNode).css('letter-spacing','normal');
 	rng.surroundContents(newNode);
 	
+	// вот здесь бы должны пойти рекурсивно наверх вплоть до tmpdv и убирать padding-right у каждого родителя
+	// перед этим конечно сейвить HTML
+	var savedHTML = tmpdv.html();
+	if (!savePaddings) {
+		setAllParents($(newNode), 'tmpdv', 'padding-right', '0px');
+		// а left?
+		}
+	
 	// this w value has x value inside
 	var w = tmpdv.width();
+	
+	// если наш стоп находится на последней букве, тогда на и в x не нужен padding-right
+	if (stop < map.length)
+	{
+		tmpdv.html(savedHTML);
+	}
 
-	// calcaulating x value
+	// calculating x value
 	if (start == 1)
 	{
 		var x = 0;
@@ -264,15 +291,20 @@ function wrapMorfanaPadding(start, stop, left, map, obj)
 		rng.deleteContents();
 		var x = tmpdv.width();
 	}
+	
 	tmpdv.remove();
 	
-	// clean w value
+	
+	// cleaning w value
 	w-=x;
 
+	
+	
 	var hDiff = h2-h;
 	return {w: w, h: h, x: x, hDiff: hDiff}
 	
 }
+
 
 function process(p)
 {
@@ -315,7 +347,7 @@ function process(p)
 
 	obj.css('display', 'inline-block');
 	obj.css('position', 'relative');
-	if (!config['freezeWord'])
+	if (!config['freezeword'])
 	{
 		obj.css('margin-top', (h * 0.75) + 'px');
 		obj.css('margin-bottom', (h * 0.35) + 'px'); // 0.35, createOs()
@@ -332,46 +364,46 @@ function process(p)
 // 
 function createOk(obj,start,stop, map)
 {
-	var nullOk = false;
+	var okZeroWordEnd = false;
 
 	// zero ending at the end of word
 	if (start == 0) 
 	{
 		start = 1;
 		stop = map.length;
-		nullOk = true;
+		okZeroWordEnd = true;
 	}
 	
 
-	var metrics = getMetrics(obj,start,stop);
+	var metrics = getMetrics(obj,start,stop, false, true);
 
 	var h = metrics.h*1.4; 
-	var w = (!nullOk)?(metrics.w + ((stop == start)?10:0)):(h * 0.3+10); 
-	var x = (!nullOk)?(metrics.x + ((start!=stop)?5:0)):(metrics.w - h*.5 + 3); 
+	var w = (!okZeroWordEnd)?(metrics.w + ((stop == start)?10:0)):(h * 0.3+10); 
+	var x = (!okZeroWordEnd)?(metrics.x + ((start!=stop)?5:0)):(metrics.w - h*.5 + 3); 
 	var hDiff = metrics.hDiff;
 
 	// компенсируем паддинги, поскольку будучи примененными к разным символам теряются, при таком методе рассчете ширины как сейчас 
-	if ((stop - start) > 0 && !nullOk){w += 10; x-=5;} 
+	if ((stop - start) > 0 && !okZeroWordEnd){w += 10; x-=5;} 
 
 	// почему не rect?
 	// "z-index: -1" в стиле svg позволяет сделать буквы внутри окончания доступными для мыши, но в ряде случаев окончания пропадают (см. wordpress). Решить проблему.
 	return '<svg class="morfana-graphics"  style="position: absolute; left: ' + (x - 10) + 'px; top: ' + ((hDiff <= 0)?(-(h*0.13)):(hDiff*.5-h*0.13)) + 'px; width: ' + w + 'px; height: ' + h + 'px;" xmlns="http://www.w3.org/2000/svg" version="1.1">\
-			<path d="M '+(2.5)+' '+(h-2)+' L '+(w-3)+' '+(h-2)+' L '+(w-3)+' '+(2)+' L '+(3)+' '+(2)+' L '+(3)+' '+(h-1.5)+'" style="stroke:rgb(150,150,150);stroke-width:1.5" fill="transparent"/>\
+			<path d="M '+(2.5)+' '+(h-2)+' L '+(w-3)+' '+(h-2)+' L '+(w-3)+' '+(2)+' L '+(3)+' '+(2)+' L '+(3)+' '+(h-1.5)+'" style="stroke:rgb(150,150,150);stroke-width:1.5" fill="transparent" fill-opacity="0"/>\
 			</svg>';
 }
 
 // all morphemes except "ok"
 function createImage(morphemeType, obj, start, stop, map)
 {
-	var metrics = getMetrics(obj,start,stop);
+	var metrics = getMetrics(obj,start,stop, false, false);
 	var w = metrics.w;  var h = metrics.h; var x = metrics.x; var hDiff = metrics.hDiff;
 	var hm = 0.34;	
 	switch (morphemeType)
 	{
-		case 'ko': return '<svg class="morfana-graphics"  style="position: absolute; left: ' + x + 'px; top: ' + ((hDiff <= 0)?(-(h*0.75)):(hDiff*0.5-h*.75)) + 'px; width: ' + w + 'px; height: ' + h + 'px;" xmlns="http://www.w3.org/2000/svg" version="1.1"><path d="M '+2+' '+(h-2)+' C '+(w/3)+' '+h*.4+', '+(w*2/3)+' '+h*.4+', '+(w-2)+' '+(h-2)+'" style="stroke:rgb(150,150,150);stroke-width:1.5" fill="transparent"/></svg>';
-		case 'su': return '<svg class="morfana-graphics"  style="position: absolute; left: ' + x + 'px; top: ' + ((hDiff <= 0)?(-(h*0.75)):(hDiff*0.5-h*.75)) + 'px; width: ' + w + 'px; height: ' + h + 'px;" xmlns="http://www.w3.org/2000/svg" version="1.1"><path d="M '+(2)+' '+(h-2)+' L '+(w/2)+' '+(h*0.5)+' L '+(w/2)+' '+(h*0.5)+' L '+(w-2)+' '+(h-2)+'" style="stroke:rgb(150,150,150);stroke-width:1.5" fill="transparent"/></svg>';
-		case 'os': return '<svg class="morfana-graphics"  style="position: absolute; left: ' + x + 'px; top: ' + ((hDiff <= 0)?((h)):(hDiff*0.5+h)) + 'px; width: ' + (w) + 'px; height: ' + (h) + 'px;" xmlns="http://www.w3.org/2000/svg" version="1.1"><path d="M '+(1.5)+' '+(1)+' L '+(1.5)+' '+(h*hm)+' L '+(w-1.5)+' '+(h*hm)+' L '+(w-1.5)+' '+(1)+'" style="stroke:rgb(150,150,150);stroke-width:1.5" fill="transparent"/></svg>';
-		case 'pr': return '<svg class="morfana-graphics"  style="position: absolute; left: ' + x + 'px; top: ' + ((hDiff <= 0)?(-(h*0.75)):(hDiff*0.5-h*.75)) + 'px; width: ' + w + 'px; height: ' + h + 'px;" xmlns="http://www.w3.org/2000/svg" version="1.1"><path d="M '+(2)+' '+(h*0.5)+' L '+(w-2)+' '+(h*0.5)+' L '+(w-2)+' '+(h-2)+'" style="stroke:rgb(150,150,150);stroke-width:1.5" fill="transparent"/></svg>';
+		case 'ko': return '<svg class="morfana-graphics"  style="position: absolute; left: ' + x + 'px; top: ' + ((hDiff <= 0)?(-(h*0.75)):(hDiff*0.5-h*.75)) + 'px; width: ' + w + 'px; height: ' + h + 'px;" xmlns="http://www.w3.org/2000/svg" version="1.1"><path d="M '+2+' '+(h-2)+' C '+(w/3)+' '+h*.4+', '+(w*2/3)+' '+h*.4+', '+(w-2)+' '+(h-2)+'" style="stroke:rgb(150,150,150);stroke-width:1.5" fill="transparent" fill-opacity="0"/></svg>';
+		case 'su': return '<svg class="morfana-graphics"  style="position: absolute; left: ' + x + 'px; top: ' + ((hDiff <= 0)?(-(h*0.75)):(hDiff*0.5-h*.75)) + 'px; width: ' + w + 'px; height: ' + h + 'px;" xmlns="http://www.w3.org/2000/svg" version="1.1"><path d="M '+(2)+' '+(h-2)+' L '+(w/2)+' '+(h*0.5)+' L '+(w/2)+' '+(h*0.5)+' L '+(w-2)+' '+(h-2)+'" style="stroke:rgb(150,150,150);stroke-width:1.5" fill="transparent" fill-opacity="0"/></svg>';
+		case 'os': return '<svg class="morfana-graphics"  style="position: absolute; left: ' + x + 'px; top: ' + ((hDiff <= 0)?((h)):(hDiff*0.5+h)) + 'px; width: ' + (w) + 'px; height: ' + (h) + 'px;" xmlns="http://www.w3.org/2000/svg" version="1.1"><path d="M '+(1.5)+' '+(1)+' L '+(1.5)+' '+(h*hm)+' L '+(w-1.5)+' '+(h*hm)+' L '+(w-1.5)+' '+(1)+'" style="stroke:rgb(150,150,150);stroke-width:1.5" fill="transparent" fill-opacity="0"/></svg>';
+		case 'pr': return '<svg class="morfana-graphics"  style="position: absolute; left: ' + x + 'px; top: ' + ((hDiff <= 0)?(-(h*0.75)):(hDiff*0.5-h*.75)) + 'px; width: ' + w + 'px; height: ' + h + 'px;" xmlns="http://www.w3.org/2000/svg" version="1.1"><path d="M '+(2)+' '+(h*0.5)+' L '+(w-2)+' '+(h*0.5)+' L '+(w-2)+' '+(h-2)+'" style="stroke:rgb(150,150,150);stroke-width:1.5" fill="transparent" fill-opacity="0"/></svg>';
 	}
 }
 
