@@ -6,19 +6,63 @@
 <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/rangy/1.2.3/rangy-core.js"></script>
 <script type="text/javascript" src="./../morfana.js"></script>
+<script type="text/x-morfana-config">Morfana.configure({autoStart: false});</script>
 </head>
 <body style="font-size: 25px;">
 
+<div style="width: 600px; float: left;">
+<span style="line-height: 2"; data-morfana-markup="ko:1-5;ok:6-6;ko:7-10;su:11-11;ok:12-13;os:1-11">ABCDEFABCDEFG</span><br>
+<span data-morfana-markup="ko:1-4;ko:6-8;ok:0;">ABCD-ABC</span><br>
+<span data-morfana-markup="ko:1-5;ok:6-6;ko:7-10;su:11-11;ok:12-13;os:1-11">ABCDEFABCDEFG</span><br>
+<span data-morfana-markup="ko:1-4;ok:0">FBCD</span><br>
+<span style="font-size:68px;" data-morfana-markup="ok:0;ok:5-0">ABCDEFGH</span><br>
+<span style="font-size:28px;" data-morfana-markup="ok:5-0;su:6-7;">ABCDEFGH</span><br>
+<span style="font-size:18px;" data-morfana-markup="ok:5-0;">ABCDEFGH</span><br>
+<div>
+	<div>
+		<span id="ok" style="font-size:18px;" data-morfana-markup="ok:5-0;ko:1-3">abcdefgh</span>
+	</div>
+</div>
+</div>
 
-<span style="line-height: 2"; data-morfana-markup="ko:1-5;ok:6-6;ko:7-10;su:11-11;ok:12-13;os:1-11">десятиэтажный</span><br><br>
+<div style="width: 300px; float: left; font-family: Georgia;">
+<div id="ok2">
+<span style="font-size:18px;" data-morfana-markup="ko:1-4;su:5-6;ok:0">abcdefgh</span><br>
+<span style="font-size:18px;" data-morfana-markup="ko:1-4;su:5-6;ok:8-0">abcdefgh</span><br>
+<span style="font-size:18px;" data-morfana-markup="ko:1-4;su:5-6;ok:7-0">abcdefgh</span><br>
+<span style="font-size:18px;" data-morfana-markup="ko:4-8;pr:1-3;ok:0;su:9-12;ok:3-0;po:14-16">abcdefghabcdefgh</span><br>
+<span style="font-size:18px;" data-morfana-markup="ko:5-8;pr:1-3;ok:0;su:9-12;po:14-16; ok: 4-0; os:2-14">abcdefghabcdefghabcdefgh</span><br>
+<span style="font-size:14px;" data-morfana-markup="ko:5-8;pr:1-3;ok:0;su:9-12;po:14-16; ok: 4-0; os:2-14">abcdefghabcdefghabcdefgh</span><br>
+<span style="font-size:24px;" data-morfana-markup="ko:5-8;pr:1-3;ok:0;su:9-12;po:14-16; ok: 4; os:2-14">abcdefghabcdefgh</span><br>
+</div>
+</div>
 
-<span data-morfana-markup="ko:1-4;ko:6-8;ok:0;">Иван-чай</span><br><br>
+<div style="width: 300px; float: left; font-family: Verdana;">
+<div id="ok2">
+<span style="font-size:18px;" data-morfana-markup="ko:1-4;su:5-6;ok:0">abcdefgh</span><br>
+<span style="font-size:18px;" data-morfana-markup="ko:1-4;su:5-6;ok:8-0">abcdefgh</span><br>
+<span style="font-size:18px;" data-morfana-markup="ko:1-4;su:5-6;ok:7-0">abcdefgh</span><br>
+<span style="font-size:18px;" data-morfana-markup="ko:4-8;pr:1-3;ok:0;su:9-12;ok:3-0;po:14-16">abcdefghabcdefgh</span><br>
+<span style="font-size:18px;" data-morfana-markup="ko:5-8;pr:1-3;ok:0;su:9-12;po:14-16; ok: 4-0; os:2-14">abcdefghabcdefghabcdefgh</span><br>
+<span style="font-size:14px;" data-morfana-markup="ko:5-8;pr:1-3;ok:0;su:9-12;po:14-16; ok: 4-0; os:2-14">abcdefghabcdefghabcdefgh</span><br>
+<span style="font-size:24px;" data-morfana-markup="ko:5-8;pr:1-3;ok:0;su:9-12;po:14-16; ok: 4; os:2-14">abcdefghabcdefgh</span><br>
+</div>
+</div>
 
-<span data-morfana-markup="ko:1-5;ok:6-6;ko:7-10;su:11-11;ok:12-13;os:1-11"><b>десят</b>и<span style="color: #FF00FF;">этаж</span>ный</span><br><br>
+<div style="width: 300px; float: left; font-family: Tahoma;">
+<div id="ok2">
+<span style="font-size:18px;" data-morfana-markup="ko:1-4;su:5-6;ok:0">abcdefgh</span><br>
+<span style="font-size:18px;" data-morfana-markup="ko:1-4;su:5-6;ok:8-0">abcdefgh</span><br>
+<span style="font-size:18px;" data-morfana-markup="ko:1-4;su:5-6;ok:7-0">abcdefgh</span><br>
+<span style="font-size:18px;" data-morfana-markup="ko:4-8;pr:1-3;ok:0;su:9-12;ok:3-0;po:14-16">abcdefghabcdefgh</span><br>
+<span style="font-size:18px;" data-morfana-markup="ko:5-8;pr:1-3;ok:0;su:9-12;po:14-16; ok: 4-0; os:2-14">abcdefghabcdefghabcdefgh</span><br>
+<span style="font-size:14px;" data-morfana-markup="ko:5-8;pr:1-3;ok:0;su:9-12;po:14-16; ok: 4-0; os:2-14">abcdefghabcdefghabcdefgh</span><br>
+<span style="font-size:24px;" data-morfana-markup="ko:5-8;pr:1-3;ok:0;su:9-12;po:14-16; ok: 4; os:2-14">abcWwefghabcdefgh</span><br>
+</div>
+</div>
 
-<span data-morfana-markup="ko:1-4;ok:0">пять</span><br><br>
 
-<!-- нулевое окончание внутри слова: <span data-morfana-markup="ok:5-5">шестьсот</span> -->
+<script type="text/javascript">$(document).ready(function(){Morfana.draw();});</script>
 
 </body>
 </html>
