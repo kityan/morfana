@@ -5,8 +5,8 @@
 
  Copyright 2013-2014, Pavel Kityan (pavel@kityan.ru)
  Licensed under the MIT license.
- Version: 1.1.1
- Build date: 6 April 2014
+ Version: 1.1.2a
+ Build date: 25 July 2014
 */
 
 (function (root, factory) {
@@ -31,17 +31,25 @@ var config = {}	;
 // set default values
 configure({
 autoStart: true, 	// start Morfana after loading complete
-freezeWord: false 	// add vertical padding to word's span or "freeze" word in its inital place
+freezeWord: false, 	// add vertical padding to word's span or "freeze" word in its inital place
+strokeWidth: 1.5	//
 });
 
 // Queue - array for processing words with setInterval()
 var queue = new Array();
 
-// order of processing morfems
-var processingOrder = ['ok', 'pr', 'po', 'ko', 'su', 'os'];
+/* 
+	Order of morfems processing. This config used to reorder markup.
+	It's important, because some morpheme signs need paddings (e.g., 'ok'). These must be done before next morfeme signs calculations.
+	Going to use regex later, cause 'ok' and 'ok_2' should be processed togeater in right order (by letter positions).
+	
+	So, later: 'osL', 'osC', 'osR' =>  /os(L|C|R)* /
+*/
+var processingOrder = ['ok', 'pr', 'po', 'ko', 'su', 'osL', 'osC', 'osR', 'os'];
+
 
 // morphemes' descriptions
-var morfemsDescription = {pr: {name: 'приставка'}, ko: {name: 'корень'}, su: {name: 'суффикс'}, os: {name: 'основа'}, ok: {name: 'окончание'}}
+// var morfemsDescription = {pr: {name: 'приставка'}, ko: {name: 'корень'}, su: {name: 'суффикс'}, os: {name: 'основа'}, ok: {name: 'окончание'}}
 
 // DOM ready
 $(document).ready(function(){
@@ -108,18 +116,16 @@ function getMetrics(obj, start, stop, returnHeight, savePaddings)
 	var h = tmpdv.height();	
 	
 	// optimzing, get only height and return
-	if (returnHeight)
-	{
+	if (returnHeight) {
 		tmpdv.remove(); 
 		return h;
 	}
 
-	// calculationg morpheme's width and x
+	// calculating morpheme's width and x
 	tmpdv.html(objHTML);
 	var map = getLettersMap(tmpdv);
 	var li = map.length - 1;
 	var newNode;
-	
 	var rng = rangy.createRange(); 
 	// cutting word's part we don't need
 	if ((stop - 1) < li)
@@ -141,11 +147,11 @@ function getMetrics(obj, start, stop, returnHeight, savePaddings)
 	
 	// вот здесь бы должны пойти рекурсивно наверх вплоть до tmpdv и убирать padding-right у каждого родителя
 	// перед этим конечно сейвить HTML
-	var savedHTML = tmpdv.html();
+	// var savedHTML = tmpdv.html();
 	if (!savePaddings) {
 		setAllParents($(newNode), 'morfana_tmpdv', 'padding-right', '0px');
 		// а left?
-		}
+	}
 	
 	// this w value has x value inside
 	var w = tmpdv.width();
@@ -153,7 +159,7 @@ function getMetrics(obj, start, stop, returnHeight, savePaddings)
 	// если наш стоп находится на последней букве, тогда на и в x не нужен padding-right
 	if (stop < map.length)
 	{
-		tmpdv.html(savedHTML);
+		//tmpdv.html(savedHTML);
 	}
 
 	// calculating x value
@@ -168,6 +174,7 @@ function getMetrics(obj, start, stop, returnHeight, savePaddings)
 		rng.setStart(map[start-1]['obj'], map[start-1]['index']);
 		rng.setEnd(map[stop-1]['obj'], map[stop-1]['index']+1);
 		rng.deleteContents();
+		
 		var x = tmpdv.width();
 	}
 	
@@ -186,31 +193,55 @@ function getMetrics(obj, start, stop, returnHeight, savePaddings)
 // 
 function createOk(obj,start,stop, map)
 {
-	var isZeroEnding = (stop == 0 && start == map.length);
+	var isZeroEndingEndWord = (stop == 0 && start == map.length);
 	var isZeroEndingInsideWord = (stop == 0 && start != map.length);	
 	
-	if (isZeroEnding || isZeroEndingInsideWord) // if so, our word part starts from first letter and ends with "start"
-	{
+	// if any tipe of "zero" ending, our fragment starts from first letter and ends with "start"
+	if (isZeroEndingEndWord || isZeroEndingInsideWord) 	{
 		stop = start*1;
 		start = 1;
 	}	
 
 	var metrics = getMetrics(obj, start, stop, false, true);
 
-	var h = metrics.h*1.35; 
-	var w = (!isZeroEnding && !isZeroEndingInsideWord)?(metrics.w + ((stop == start)?10:0)):(h * 0.3+10); 
-	var x = (!isZeroEnding && !isZeroEndingInsideWord)?(metrics.x + ((start!=stop)?5:0)):(metrics.w - h*.5 + 3); 
-	if (isZeroEndingInsideWord || isZeroEnding){x = metrics.w - w/1.25 + 9*15/h;} 
-	// поэтому тут надо бы метрику брать дважды - с учетом паддинга сивол после которого стоит окончание и следующий! и по разнице!!!
+	var h = metrics.h*1.35;  
+	var w = (!isZeroEndingEndWord && !isZeroEndingInsideWord)?(metrics.w + ((stop == start)?10:0)):(h * 0.3+10); 
+	var x = (!isZeroEndingEndWord && !isZeroEndingInsideWord)?(metrics.x + ((start!=stop)?5:0)):(metrics.w - h*.5 + 3); 
+	if (isZeroEndingEndWord || isZeroEndingInsideWord){x = metrics.w - w/1.30 + 9*15/h;} 
+	// поэтому тут надо бы метрику брать дважды - с учетом паддинга символ после которого стоит окончание и следующий! и по разнице!
 
 	var hDiff = metrics.hDiff;
 
-	// компенсируем паддинги, поскольку будучи примененными к разным символам теряются, при таком методе рассчете ширины как сейчас 
-	if ((stop - start) > 0 && !isZeroEnding && !isZeroEndingInsideWord){w += 10; x-=5;} 
+	
+	var xDiff = 10; // padding * 2 		// move to getMetrics()?
+	var wDiff = 10; // padding * 2		// move to getMetrics()?
 
-	// why not rect?
-	return '<svg class="morfana-graphics"  style="pointer-events: none; position: absolute; left: ' + (x - 10) + 'px; top: ' + ((hDiff <= 0)?(-(h*0.13)):(hDiff*.5-h*0.13)) + 'px; width: ' + w + 'px; height: ' + h + 'px;" xmlns="http://www.w3.org/2000/svg" version="1.1">\
-			<path d="M '+(2.5)+' '+(h-2)+' L '+(w-3)+' '+(h-2)+' L '+(w-3)+' '+(2)+' L '+(3)+' '+(2)+' L '+(3)+' '+(h-1.5)+'" style="stroke:rgb(150,150,150);stroke-width:1.5" fill="transparent" fill-opacity="0"/>\
+	
+	// compensate paddings
+	if (isZeroEndingEndWord || isZeroEndingInsideWord) {
+		x -= (xDiff);
+	} else {
+		
+		if ((stop - start) == 0){
+			if (start == 1){
+				w -= wDiff;
+			} else {
+				x -= xDiff;
+			}
+		} else {
+			if (start > 1){
+				x -= xDiff*1.5;
+				w += wDiff;
+			} else {
+				x -= (xDiff/2);
+			}
+		}
+		
+	}
+
+
+	return '<svg class="morfana-graphics"  style="pointer-events: none; position: absolute; left: ' + x + 'px; top: ' + ((hDiff <= 0)?(-(h*0.13)):(hDiff*.5-h*0.13)) + 'px; width: ' + w + 'px; height: ' + h + 'px;" xmlns="http://www.w3.org/2000/svg" version="1.1">\
+			<path d="M '+(2.5)+' '+(h-2)+' L '+(w-3)+' '+(h-2)+' L '+(w-3)+' '+(2)+' L '+(3)+' '+(2)+' L '+(3)+' '+(h-1.5)+'" style="stroke:rgb(150,150,150); stroke-width: ' + config['strokeWidth'] + '" fill="transparent" fill-opacity="0"/>\
 			</svg>';
 }
 
@@ -228,15 +259,13 @@ function createOk(obj,start,stop, map)
  * @param {array} map - symbol map of word for rangy
  */
 
-function wrapMorfanaPadding(start, stop, map, obj)
-{
-	// how many letters in this word? We need total quantity to replace "ok:0" to "ok:{totalLettersQty}-0"
-	
-	var isZeroEnding = (stop == 0 && start == map.length);
+function wrapMorfanaPadding(start, stop, map, obj) {
+
+	var isZeroEndingEndWord = (stop == 0 && start == map.length);
 	var isZeroEndingInsideWord = (stop == 0 && start != map.length);
 	
-	if (isZeroEnding || isZeroEndingInsideWord) // if so, our word part starts from first letter and ends with "start"
-	{
+	// if so, our word part starts from first letter and ends with "start"
+	if (isZeroEndingEndWord || isZeroEndingInsideWord) 	{
 		stop = start*1;
 		start = 1;
 	}
@@ -244,19 +273,18 @@ function wrapMorfanaPadding(start, stop, map, obj)
 	// get height of word
 	var h = getMetrics(obj, start, stop, true, false);
 
-	// get last letter's element
+	// get last fragment element
 	var rng = rangy.createRange();
 	rng.setStart(map[stop-1]['obj'], map[stop-1]['index']);
 	rng.setEnd(map[stop-1]['obj'], map[stop-1]['index']+1);	
 	var newNode = document.createElement('span');
-	var val = Math.ceil((isZeroEndingInsideWord || isZeroEnding)?(h * 0.4 + 13):5);
+	var val = Math.ceil((isZeroEndingInsideWord || isZeroEndingEndWord)?(h * 0.4 + 13):5);
 	$(newNode).css('padding-right', val + 'px');
 	$(newNode).addClass('morfana-paddings');
 	rng.surroundContents(newNode);
 
 	// we need padding-left for left part
-	if (!isZeroEnding && !isZeroEndingInsideWord)
-	{
+	if (!isZeroEndingEndWord && !isZeroEndingInsideWord) {
 		// refresh map
 		map = getLettersMap(obj);
 	
@@ -273,16 +301,25 @@ function wrapMorfanaPadding(start, stop, map, obj)
 }
 
 
+function clear(selector)
+{
+	var obj = (!selector) ? $(document) : $(selector);
+
+	// clean up previous Morfana.draw() inserts
+	obj.find(".morfana-graphics").remove();				// remove SVG
+	obj.find(".morfana-paddings").contents().unwrap();	// unwrap wrapped for paddings
+	
+	return true;
+}
+
 /**
  * Processing morphemes 
  * @param {object} p - object: {obj: (jQuery Object for HTMLElement), morfems: [{name: (morpheme's name), range: [(start), (stop)]}, …]
  */
 
-function process(p)
-{
-	// clean up previous Morfana.draw() inserts
-	p.obj.find(".morfana-graphics").remove();				// remove SVG
-	p.obj.find(".morfana-paddings").contents().unwrap();	// unwrap wrapped for paddings
+function process(p) {
+
+	clear(p.obj);
 
 	// get word's map 
 	var map = getLettersMap(p.obj);
@@ -294,10 +331,9 @@ function process(p)
 	var h = getMetrics(p.obj, 1, map.length + 1, true);
 
 	// create SVG one by one
-	for (var i=0, qty = p['morfems'].length; i < qty; i++)
-	{
+	for (var i=0, qty = p['morfems'].length; i < qty; i++) {
 		var m = p['morfems'][i];
-		if (m['name'] == 'ok') // if morpheme is "ending" then we need paddings
+		if (m['name'] == 'ok') // if morpheme is "(zero) ending" then we need paddings
 		{
 			wrapMorfanaPadding(m['range'][0], m['range'][1], map, p.obj)
 			map = getLettersMap(p.obj); // refresh map because we added spans with paddings
@@ -312,8 +348,7 @@ function process(p)
 
 	
 	// do we need to compensate height?
-	if (!config['freezeWord'])
-	{
+	if (!config['freezeWord']) {
 		p.obj.css('margin-top', (h * 0.85) + 'px');
 		p.obj.css('margin-bottom', (h * 0.35) + 'px');
 	}
@@ -336,13 +371,12 @@ function process(p)
 function createImage(morphemeType, obj, start, stop, map)
 {
 	
-	// Create morpheme "ending"
-	if (morphemeType == 'ok')
-	{
+	// Create morpheme sign for "(zero) ending"
+	if (morphemeType == 'ok') {
 		return createOk(obj, start, stop, map);
 	}
 
-	// Create other morphemes
+	// Create other morpheme signs
 	var metrics = getMetrics(obj,start,stop, false, false);
 	var w = metrics.w;  var h = metrics.h; var x = metrics.x; var hDiff = metrics.hDiff;
 	var hm = 0.3;
@@ -367,15 +401,27 @@ function createImage(morphemeType, obj, start, stop, map)
 			break;
 		case 'os': 
 			part1 = 'left: ' + x + 'px; top: ' + ((hDiff <= 0)?((h)):(hDiff*0.5+h)) + 'px; width: ' + (w) + 'px; height: ' + (h) + 'px;"';
-			//part1 = 'left: ' + x + 'px; top: ' + ((hDiff <= 0)?((h*0.8)):(hDiff*0.5+h)) + 'px; width: ' + (w) + 'px; height: ' + (h) + 'px;"';
-			part2 = '<path d="M '+(1.5)+' '+(1)+' L '+(1.5)+' '+(h*hm)+' L '+(w-1.5)+' '+(h*hm)+' L '+(w-1.5)+' '+(1)+'"';
+			//part1 = 'left: ' + x + 'px; top: ' + ((hDiff <= 0)?((h*0.8)):(hDiff*0.5+h)) + 'px; width: ' + (w) + 'px; height: ' + (h) + 'px;"';	// too close to letters?
+			part2 = '<path d="M '+(1.5)+' '+(3)+' L '+(1.5)+' '+(h*hm)+' L '+(w-1.5)+' '+(h*hm)+' L '+(w-1.5)+' '+(3)+'"';
+			break;
+		case 'osL': 
+			part1 = 'left: ' + x + 'px; top: ' + ((hDiff <= 0)?((h)):(hDiff*0.5+h)) + 'px; width: ' + (w) + 'px; height: ' + (h) + 'px;"';
+			part2 = '<path d="M '+(1.5)+' '+(3)+' L '+(1.5)+' '+(h*hm)+' L '+(w-1.5)+' '+(h*hm)+ '"';
+			break;
+		case 'osR': 
+			part1 = 'left: ' + x + 'px; top: ' + ((hDiff <= 0)?((h)):(hDiff*0.5+h)) + 'px; width: ' + (w) + 'px; height: ' + (h) + 'px;"';
+			part2 = '<path d="M '+(1.5)+' '+(h*hm)+' L '+(w-1.5)+' '+(h*hm)+' L '+(w-1.5)+' '+(3)+'"';
+			break;
+		case 'osC': 
+			part1 = 'left: ' + x + 'px; top: ' + ((hDiff <= 0)?((h)):(hDiff*0.5+h)) + 'px; width: ' + (w) + 'px; height: ' + (h) + 'px;"';
+			part2 = '<path d="M '+(1.5)+' '+(h*hm)+' L '+(w-1.5)+' '+(h*hm)+'"';
 			break;
 	}
 	return '<svg class="morfana-graphics" style="position: absolute; ' +
 			part1 + 
 			' xmlns="http://www.w3.org/2000/svg" version="1.1">' + 
 			part2 + 
-			' style="stroke:rgb(150,150,150); stroke-width:1.5" fill="transparent" fill-opacity="0"/></svg>';
+			' style="stroke:rgb(150,150,150); stroke-width:' + config['strokeWidth'] + '" fill="transparent" fill-opacity="0"/></svg>';
 }
 
 
@@ -410,7 +456,7 @@ function getLettersMap(obj)
 			else
 			{
 				for (var j=0; j < data.length; j++)
-				{	
+				{
 					// map all letters of this fragment of word
 					map[shift] = {obj: obj[0].childNodes[i], index: j};
 					shift++;
@@ -420,7 +466,17 @@ function getLettersMap(obj)
 		return shift;
 		})(obj, 0);
 
-	return map;	
+	// cleaning the map if word has "non-letter" elements (for example, if this function called from getLettersBounds() when the word element has SVG elements appended already)
+	
+	var _map = [];
+	for (var i=0, qty = map.length; i < qty; i++)
+	{
+		if (map[i].obj.data.match(/[^\s]/)){
+			_map.push(map[i]);
+		}
+	}
+		
+	return _map;	
 }
 
 
@@ -445,7 +501,7 @@ function preprocess(el)
 	var morfems = obj.attr('data-morfana-markup').replace(/\s/g, "").split(";");
 	var tmparr = new Object();
 	
-	// how many letters in this word? We need total quantity to replace "ok:0" to "ok:{totalLettersQty}-0"
+	// how many letters in this word? We need total quantity to replace "ok:0" and "ok:0-0" to "ok:{totalLettersQty}-0"
 	var totalLettersQty = obj.text().length;
 	
 	// go throw array with strings (e.g., "ok:5-6", "ko:2-3", "ok:0", "ok:4")
@@ -464,14 +520,12 @@ function preprocess(el)
 				tmparr[m] = new Array(); 
 			}
 			
-			if (m == 'ok')
-			{
+			if (m == 'ok') {
 				// replace "ok:4" to "ok:4-0"
-				if (!arr[1]) 
-				{
+				if (!arr[1]) {
 					arr[1] = "0";
 				}
-				// replace "ok:0" to "ok:{totalLettersQty}-0"
+				// replace "ok:0" and "ok:0-0" to "ok:{totalLettersQty}-0"
 				if (arr[0] == '0') 
 				{
 					arr[0] = totalLettersQty; 
@@ -566,11 +620,14 @@ function setAllParents(obj, stopId, param, value)
 function setAllChildren(obj, param, value)
 {
 	obj.css(param, value);
-	var qty = obj[0].children.length;
-	for (var i=0; i < qty; i++)
+	if (obj[0] && obj[0].children)
 	{
-		setAllChildren($(obj[0].children[i]), param, value);
-	}	
+		var qty = obj[0].children.length;
+		for (var i=0; i < qty; i++)
+		{
+			setAllChildren($(obj[0].children[i]), param, value);
+		}	
+	}
 }
 
 
@@ -599,11 +656,13 @@ function draw (selector, markup)
 	}
 	
 	doQueue();
+	
+	return true;
 }
 
 /**
  * If element has attribute "data-morfana-markup" it will be added to queue.
- * If not - all шеы children with attribute "data-morfana-markup" will be added to queue.
+ * If not - all its children with attribute "data-morfana-markup" will be added to queue.
  */
 function processSelectedElement()
 {
@@ -658,18 +717,38 @@ function configure(obj)
 /**
  * [API] Will be used for interactive editing
  */
+/* 
 function getMorfemDescription(m)
 {
 	return morfemsDescription[m];
+}
+*/
+
+/**
+ * [API] Get x and x+width for each letter
+ */
+function getLettersBounds(obj)
+{
+	var metrics = [];
+	var map_dirty = getLettersMap(obj);
+	
+	for (var i = 0, qty = map_dirty.length; i < qty; i++)
+	{
+		metrics.push(getMetrics(obj, i+1, i+1, false, false));
+	}
+	
+	return metrics;
 }
 
 
 // Exporting API
 var Morfana = {};
 Morfana.draw = draw;
+Morfana.clear = clear;
 Morfana.configure = configure;
 Morfana.getLettersMap = getLettersMap;
-Morfana.getMorfemDescription = getMorfemDescription;
+Morfana.getLettersBounds = getLettersBounds;
+//Morfana.getMorfemDescription = getMorfemDescription;
 return Morfana;
 
 }));
