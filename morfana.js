@@ -101,45 +101,49 @@ function getAllIndexOf(str, symbol)
 /**
  * Calculating word's height and morpheme's x and width
  */
-function getMetrics(obj, start, stop, returnHeight, savePaddings)
-{
+function getMetrics(obj, start, stop, returnHeight, savePaddings) {
 
 	var objHTML = obj.html();
 	
 	// creating temporary div inside word's element
-	var tmpdv = $('<div style="' + ((debug)?"":"left: -1000px; visibility: hidden;") + 'width: auto; height: auto; position: absolute;" id="morfana_tmpdv" />')
-	obj.append(tmpdv); 
-	
+	var tmpdv = 
+		$('<div style="' + ((debug)?"":"left: -1000px; visibility: hidden;") + 'width: auto; '+
+		'height: auto; position: absolute;" id="morfana_tmpdv" />')
+		.appendTo(obj)
+		.html(objHTML);
+
 	// setting line-height to normal, calculating word's height
-	tmpdv.html(objHTML);
-	var h2 = tmpdv.height();	
+	var h_lineHeightAsItWas = tmpdv.height();	
 	setAllChildren(tmpdv, 'line-height', 'normal');
 	var h = tmpdv.height();	
+	var hDiff = h_lineHeightAsItWas - h;
 	
 	// optimzing, get only height and return
-	if (returnHeight) {
-		tmpdv.remove(); 
-		return h;
-	}
+	if (returnHeight) {tmpdv.remove(); return h;}
 
 	// calculating morpheme's width and x
+	
+	// get back content with "lineHeightAsItWas" [?]
 	tmpdv.html(objHTML);
+	
 	var map = getLettersMap(tmpdv);
-	var li = map.length - 1;
+	var lastLetterIndex = map.length - 1;
 	var newNode;
 	var rng = rangy.createRange(); 
+
 	// cutting word's part we don't need
-	if ((stop - 1) < li)
+	if ((stop - 1) < lastLetterIndex)
 	{
+		// begining on index after stop's index
 		rng.setStart(map[stop]['obj'], map[stop]['index']);
-		rng.setEnd(map[li]['obj'], map[li]['index']+1);
+		rng.setEnd(map[lastLetterIndex]['obj'], map[lastLetterIndex]['index']+1);
 		rng.deleteContents();
 		// cleaning up after rng.deleteContents()
 		tmpdv.find('.morfana-paddings').each(function(){var obj = $(this); if (obj.text() == ''){obj.remove()}});
 	}
-	// сейчас в tmpdv содерджится фрагмент слова, ширина которого дает нам x+w
-	// мы сбрасываем letter-spacing и padding-right последнего символа, чтобы  значок морфемы заканчивался на символе, а не после него
 	
+	// now we have in tmpdv a word's part. Its width = x + w
+	// removing letter-spacing and  last letter's padding-right to have morpheme's sign ending on letter's bound and not far from it
 	rng.setStart(map[stop-1]['obj'], map[stop-1]['index']);
 	rng.setEnd(map[stop-1]['obj'], map[stop-1]['index']+1);
 	newNode = document.createElement('span');
@@ -151,7 +155,6 @@ function getMetrics(obj, start, stop, returnHeight, savePaddings)
 	// var savedHTML = tmpdv.html();
 	if (!savePaddings) {
 		setAllParents($(newNode), 'morfana_tmpdv', 'padding-right', '0px');
-		// а left?
 	}
 	
 	// this w value has x value inside
@@ -163,29 +166,28 @@ function getMetrics(obj, start, stop, returnHeight, savePaddings)
 		//tmpdv.html(savedHTML);
 	}
 
+	
 	// calculating x value
-	if (start == 1)
-	{
+	if (start == 1)	{
 		var x = 0;
 	}
 	else
 	{
-		// rebuilding map
+		// building map for word part in our tmpdv
 		var map = getLettersMap(tmpdv);
+		// cutting part from start letter to stop (last letter in word part in our tmpdv)
 		rng.setStart(map[start-1]['obj'], map[start-1]['index']);
 		rng.setEnd(map[stop-1]['obj'], map[stop-1]['index']+1);
 		rng.deleteContents();
-		
 		var x = tmpdv.width();
 	}
 	
 	tmpdv.remove();
 	
-	
 	// cleaning w value
 	w-=x;
 
-	var hDiff = h2-h;
+
 	return {w: w, h: h, x: x, hDiff: hDiff}
 
 }
@@ -567,12 +569,14 @@ function preprocess(el)
 			"ok": [
 					null,...null,
 					[	
-						{"name": "ok", "range": ["0"]}
+						{"name": "ok", "range": ["5","0"]}
 					]
 				]
 		}
 						
-		OK! Lets process in correct order. Endings - first, because they change word's width by adding paddings.
+		OK! 
+		Now lets process in correct order. Endings - first, because they change word's width by adding paddings.
+		
 	*/	
 	
 	
@@ -582,16 +586,36 @@ function preprocess(el)
 		// m - type of morefeme from global array "processingOrder"
 		m = processingOrder[i];
 		
-		// do we have such morpheme?
+		// do we have such morpheme in our word?
 		if (tmparr[m])
 		{
 			for (var k=0, qty2 = tmparr[m].length; k < qty2; k++)
 			{	
 				if (tmparr[m][k]) // if not null
 				{
-					for (var j=0, qty3 = tmparr[m][k].length; j< qty3; j++)
-					{	
-						out['morfems'].push(tmparr[m][k][j]);
+					// non-zero endings must be processed before zero endings, 
+					// because zero endings add adds padding which is more than padding for non-zero ending, so...
+					if (m == 'ok') {
+
+						// non-zero endings
+						for (var j=0, qty3 = tmparr[m][k].length; j< qty3; j++){	
+							if (tmparr[m][k][j]['range'][1] != '0'){
+								out['morfems'].push(tmparr[m][k][j]);
+							}
+						}
+						
+						// zero endings
+						for (var j=0, qty3 = tmparr[m][k].length; j< qty3; j++){	
+							if (tmparr[m][k][j]['range'][1] == '0'){
+								out['morfems'].push(tmparr[m][k][j]);
+							}
+						}
+
+					} else {
+						// others
+						for (var j=0, qty3 = tmparr[m][k].length; j< qty3; j++){	
+								out['morfems'].push(tmparr[m][k][j]);
+						}
 					}
 				}
 			}
@@ -599,6 +623,7 @@ function preprocess(el)
 	}
 	
 	// now we have correct order in "out"
+	
 	// lets draw
 	process(out);
 
@@ -736,8 +761,7 @@ function getLettersBounds(obj)
 	var metrics = [];
 	var map_dirty = getLettersMap(obj);
 	
-	for (var i = 0, qty = map_dirty.length; i < qty; i++)
-	{
+	for (var i = 0, qty = map_dirty.length; i < qty; i++) {
 		metrics.push(getMetrics(obj, i+1, i+1, false, false));
 	}
 	
