@@ -32,7 +32,8 @@ var config = {}	;
 configure({
 autoStart: true, 	// start Morfana after loading complete
 freezeWord: false, 	// add vertical padding to word's span or "freeze" word in its inital place
-strokeWidth: 1.5	//
+strokeWidth: 1.5,	//
+disablePointerEvents: true	// add pointer-events: none to each svg
 });
 
 // Queue - array for processing words with setInterval()
@@ -193,9 +194,12 @@ function getMetrics(obj, start, stop, returnHeight, savePaddings)
 // 
 function createOk(obj,start,stop, map)
 {
+	
 	var isZeroEndingEndWord = (stop == 0 && start == map.length);
 	var isZeroEndingInsideWord = (stop == 0 && start != map.length);	
 	
+	
+	var morfanaCommand = 'data-morfana-command="ok:' + start + '-' + stop + '"';
 	// if any tipe of "zero" ending, our fragment starts from first letter and ends with "start"
 	if (isZeroEndingEndWord || isZeroEndingInsideWord) 	{
 		stop = start*1;
@@ -240,7 +244,7 @@ function createOk(obj,start,stop, map)
 	}
 
 
-	return '<svg class="morfana-graphics"  style="pointer-events: none; position: absolute; left: ' + x + 'px; top: ' + ((hDiff <= 0)?(-(h*0.13)):(hDiff*.5-h*0.13)) + 'px; width: ' + w + 'px; height: ' + h + 'px;" xmlns="http://www.w3.org/2000/svg" version="1.1">\
+	return '<svg class="morfana-graphics"  ' + morfanaCommand + ' style="' + (config['disablePointerEvents'] ? 'pointer-events: none; ' : '') + 'position: absolute; left: ' + x + 'px; top: ' + ((hDiff <= 0)?(-(h*0.13)):(hDiff*.5-h*0.13)) + 'px; width: ' + w + 'px; height: ' + h + 'px;" xmlns="http://www.w3.org/2000/svg" version="1.1">\
 			<path d="M '+(2.5)+' '+(h-2)+' L '+(w-3)+' '+(h-2)+' L '+(w-3)+' '+(2)+' L '+(3)+' '+(2)+' L '+(3)+' '+(h-1.5)+'" style="stroke:rgb(150,150,150); stroke-width: ' + config['strokeWidth'] + '" fill="transparent" fill-opacity="0"/>\
 			</svg>';
 }
@@ -417,7 +421,7 @@ function createImage(morphemeType, obj, start, stop, map)
 			part2 = '<path d="M '+(1.5)+' '+(h*hm)+' L '+(w-1.5)+' '+(h*hm)+'"';
 			break;
 	}
-	return '<svg class="morfana-graphics" style="position: absolute; ' +
+	return '<svg class="morfana-graphics" data-morfana-command="' + morphemeType + ':' + start + '-' + stop + '" style="' + (config['disablePointerEvents'] ? 'pointer-events: none; ' : '') + 'position: absolute; ' +
 			part1 + 
 			' xmlns="http://www.w3.org/2000/svg" version="1.1">' + 
 			part2 + 

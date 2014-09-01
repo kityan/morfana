@@ -30,7 +30,7 @@ For more demos visit [official website](http://morfana.ru/)
 - Code refactoring
 - Changed draw() behaviour. If elements selected with selector don't have attribute 'data-morfana-markup' Morfana trying to select their children with this attribute
 - Fixed #3. Now: 'pointer-events: none' for all SVG elements used as morpheme signs.
-- Added morphemes: "zero-ending" inside word, "postfix", "interrupted basis" in 3 parts
+- Added morphemes: "zero-ending" inside word, "postfix", "interrupted stem" in 3 parts
 - Decreased size of vertical lines in sign of morpheme "basis"
 - Added to API: Morfana.clear()
 - Added to API: Morfana.getLettersBounds()
