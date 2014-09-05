@@ -25,7 +25,7 @@
 	}
 }(this, function ($, rangy) {
 
-var development = {colorize: true, log: false, showTmpDiv: false};
+var development = {colorize: false, log: false, showTmpDiv: false};
 var config = {}	;
 
 // set default values
@@ -159,7 +159,7 @@ function createImage(data, morphemeType, range)//morphemeType, obj, start, stop,
 			part2 = '<path d="M '+(1.5)+' '+(h*hm)+' L '+(w-1.5)+' '+(h*hm)+'"';
 			break;
 	}
-	return '<svg class="morfana-graphics" data-morfana-command="' + morphemeType + ':' + (range[0]+1) + '-' + (range[1]+1) + '" style="' + 
+	return '<svg class="morfana-graphics" data-morfana-command="' + morphemeType + ':' + (range[0]+1) + '-' + ((range[1] == null) ? 0 : (range[1]+1)) + '" style="' + 
 			(config['disablePointerEvents'] ? 'pointer-events: none; ' : '') + 'position: absolute; ' +
 			part1 + 
 			' xmlns="http://www.w3.org/2000/svg" version="1.1">' + 
