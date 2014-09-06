@@ -29,6 +29,7 @@ For more demos visit [official website](http://morfana.ru/)
 - Heavily code refactoring
 - Added 'stroke', 'strokeWidth' and 'disablePointerEvents' to config
 - Added colorization mode for debugging
+- Each SVG now have data-morfana-command attribute with markup code used for SVG
 
 
 `1.1.2a` / `25.07.2014`
