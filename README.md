@@ -25,6 +25,12 @@ Demo HTML document
 For more demos visit [official website](http://morfana.ru/)
 
 ##Changelog
+`2.0.1b` / `06.09.2014`
+- Heavily code refactoring
+- Added 'stroke', 'strokeWidth' and 'disablePointerEvents' to config
+- Added colorization mode for debugging
+
+
 `1.1.2a` / `25.07.2014`
 
 - Code refactoring
@@ -48,3 +54,5 @@ For more demos visit [official website](http://morfana.ru/)
 `1.0.1a` / `04.11.2013`
 
 - Library release
+
+D:\projects\morfana
