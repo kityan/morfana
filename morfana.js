@@ -68,8 +68,8 @@ $(document).ready(function(){
  */
 function wrapPadding(data, letterIndex, paddingType){
 	var rng = rangy.createRange();
-	rng.setStart(data.maps.actual[letterIndex].obj, data.maps.actual[letterIndex].index);
-	rng.setEnd(data.maps.actual[letterIndex].obj, data.maps.actual[letterIndex].index+1);	
+	rng.setStart(data.maps.actual[letterIndex].element, data.maps.actual[letterIndex].index);
+	rng.setEnd(data.maps.actual[letterIndex].element, data.maps.actual[letterIndex].index+1);	
 	var newNode = document.createElement('span');	
 	var val = Math.ceil((paddingType == 'after')?(data.height * 0.4 + 13):5);	// padding params in px
 	var side = (paddingType != 'start') ? 'right' : 'left';
@@ -263,15 +263,15 @@ function calculateMetrics(data, justHeightReturnWordHeight){
 
 		tmpDiv.find('.morfana-paddings').each(function(){var obj = $(this); if (obj.text() == ''){obj.remove()}});		
 		if (data.letters && (data.letters[i].stop['ok'] || data.letters[i].after['ok']) ){
-			if (data.letters[i].stop['ok']){$(tmpDiv_map[i].obj).unwrap();}
-			if (data.letters[i].after['ok']){$(tmpDiv_map[i].obj).unwrap();}
+			if (data.letters[i].stop['ok']){$(tmpDiv_map[i].element).unwrap();}
+			if (data.letters[i].after['ok']){$(tmpDiv_map[i].element).unwrap();}
 		}
 
 		var newNode = document.createElement('span');	
 		$(newNode).css('letter-spacing', 0);
 		
-		rng.setStart(tmpDiv_map[i].obj, tmpDiv_map[i].index);
-		rng.setEnd(tmpDiv_map[i].obj, tmpDiv_map[i].index+1);
+		rng.setStart(tmpDiv_map[i].element, tmpDiv_map[i].index);
+		rng.setEnd(tmpDiv_map[i].element, tmpDiv_map[i].index+1);
 		rng.surroundContents(newNode);
 		
 		data.metrics[i].w = tmpDiv.width();
@@ -357,7 +357,7 @@ function getLettersMap(obj) {
 			} else {
 				for (var j=0; j < data.length; j++)	{
 					// map all letters of this fragment of word
-					map[shift] = {'obj': obj[0].childNodes[i], 'index': j};
+					map[shift] = {'element': obj[0].childNodes[i], 'index': j};
 					shift++;
 				}
 			}
