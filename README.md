@@ -54,5 +54,3 @@ For more demos visit [official website](http://morfana.ru/)
 `1.0.1a` / `04.11.2013`
 
 - Library release
-
-D:\projects\morfana
