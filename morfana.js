@@ -5,8 +5,8 @@
 
  Copyright 2013-2014, Pavel Kityan (pavel@kityan.ru)
  Licensed under the MIT license.
- Version: 2.0.1b
- Build date: 6 September 2014
+ Version: 2.1.1b
+ Build date: 7 September 2014
 */
 
 (function (root, factory) {
