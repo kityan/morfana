@@ -35,7 +35,7 @@ configure({
 	strokeWidth: 1.5,			//
 	stroke: 'rgb(150,150,150)',
 	disablePointerEvents: true,	// add pointer-events: none to each svg
-	zeroEndingWidthFactor: 0.50
+	zeroEndingWidthFactor: 0.43
 });
 
 // Queue - array for processing words with setInterval()
