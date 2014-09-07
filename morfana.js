@@ -30,12 +30,12 @@ var config = {}	;
 
 // set default values
 configure({
-	autoStart: true, 			// start Morfana after loading complete
-	freezeWord: false, 			// add vertical padding to word's span or "freeze" word in its inital place
-	strokeWidth: 1.5,			//
+	autoStart: true, 		// start Morfana after loading complete
+	freezeWord: false, 		// add vertical padding to word's span or "freeze" word in its inital place
+	strokeWidth: 1.5,		// px
 	stroke: 'rgb(150,150,150)',
 	disablePointerEvents: true,	// add pointer-events: none to each svg
-	zeroEndingWidthFactor: 0.43
+	zeroEndingWidthFactor: 0.43	// now: width of "zero-ending" = data.height * zeroEndingWidthFactor + 9
 });
 
 // Queue - array for processing words with setInterval()
@@ -574,6 +574,7 @@ function doQueue() {
  */
 function configure(obj) {
 	$.extend(true, config, obj);
+	config['strokeWidth'] = parseFloat(config['strokeWidth']);
 }
 
 
