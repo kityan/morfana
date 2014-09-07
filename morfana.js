@@ -34,7 +34,8 @@ configure({
 	freezeWord: false, 			// add vertical padding to word's span or "freeze" word in its inital place
 	strokeWidth: 1.5,			//
 	stroke: 'rgb(150,150,150)',
-	disablePointerEvents: true	// add pointer-events: none to each svg
+	disablePointerEvents: true,	// add pointer-events: none to each svg
+	zeroEndingWidthFactor: 0.50
 });
 
 // Queue - array for processing words with setInterval()
@@ -71,7 +72,7 @@ function wrapPadding(data, letterIndex, paddingType){
 	rng.setStart(data.maps.actual[letterIndex].element, data.maps.actual[letterIndex].index);
 	rng.setEnd(data.maps.actual[letterIndex].element, data.maps.actual[letterIndex].index+1);	
 	var newNode = document.createElement('span');	
-	var val = Math.ceil((paddingType == 'after')?(data.height * 0.4 + 13):5);	// padding params in px
+	var val = Math.ceil((paddingType == 'after')?(data.height * config['zeroEndingWidthFactor'] + 14):5);	// padding params in px
 	var side = (paddingType != 'start') ? 'right' : 'left';
 	$(newNode).css('padding-' + side, val + 'px');
 	$(newNode).addClass('morfana-paddings morfana-paddings-' + side);
@@ -111,7 +112,7 @@ function createImage(data, morphemeType, range)//morphemeType, obj, start, stop,
 					x-=5; w+=10;
 				}	
 			} else {				// morpheme 'zero-ending'
-				w = h*0.43 + 9;
+				w = h*config['zeroEndingWidthFactor'] + 9;
 				x = x + data.metrics[range[0]].w + 2;
 
 				// we have 'ending' stop on this letter and 'zero-ending' after this letter. 
@@ -123,7 +124,9 @@ function createImage(data, morphemeType, range)//morphemeType, obj, start, stop,
 			
 			h*=1.35;
 			part1 = 'left: ' + x + 'px; top: ' + ((hDiff <= 0)?(-(h*0.13)):(hDiff*.5-h*0.13)) + 'px; width: ' + w + 'px; height: ' + h + 'px;"';
-			part2 = '<path d="M '+(2.5)+' '+(h-2)+' L '+(w-3)+' '+(h-2)+' L '+(w-3)+' '+(2)+' L '+(3)+' '+(2)+' L '+(3)+' '+(h-1.5)+'"';
+			//part2 = '<path d="M '+(1.5)+' '+(h-2)+' L '+(w-3)+' '+(h-2)+' L '+(w-3)+' '+(2)+' L '+(3)+' '+(2)+' L '+(3)+' '+(h-1.5)+'"';
+			part2 = '<rect x="' + config['strokeWidth'] + '" y="' + config['strokeWidth'] + '" width="' + (w*1 - config['strokeWidth']*2) + '" height="' + (h*1 - config['strokeWidth']*2) + '" ';
+			
 			break;
 		case 'ko': 
 			part1 = 'left: ' + x + 'px; top: ' + ((hDiff <= 0)?(-(h*0.85)):(hDiff*0.5-h*.85)) + 'px; width: ' + w + 'px; height: ' + h + 'px;"';
