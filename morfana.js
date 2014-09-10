@@ -5,8 +5,8 @@
 
  Copyright 2013-2014, Pavel Kityan (pavel@kityan.ru)
  Licensed under the MIT license.
- Version: 2.1.2b
- Build date: 7 September 2014
+ Version: 2.2.0b
+ Build date: 10 September 2014
 */
 
 (function (root, factory) {
@@ -35,7 +35,8 @@ configure({
 	strokeWidth: 1.5,		// px
 	stroke: 'rgb(150,150,150)',
 	disablePointerEvents: true,	// add pointer-events: none to each svg
-	zeroEndingWidthFactor: 0.43	// now: width of "zero-ending" = data.height * zeroEndingWidthFactor + 9
+	zeroEndingWidthFactor: 0.7,	// now: width of "zero-ending" = data.height * zeroEndingWidthFactor
+	paddingFactor: 0.2			// now: width of padding for "ending" = data.height * paddingFactor
 });
 
 // Queue - array for processing words with setInterval()
@@ -63,7 +64,6 @@ $(document).ready(function(){
 });
 
 
-
 /**
  * Wrap letter into spans with paddings. Called by wrapPaddings().
  */
@@ -72,7 +72,10 @@ function wrapPadding(data, letterIndex, paddingType){
 	rng.setStart(data.maps.actual[letterIndex].element, data.maps.actual[letterIndex].index);
 	rng.setEnd(data.maps.actual[letterIndex].element, data.maps.actual[letterIndex].index+1);	
 	var newNode = document.createElement('span');	
-	var val = Math.ceil((paddingType == 'after')?(data.height * config['zeroEndingWidthFactor'] + 14):5);	// padding params in px
+	var val = Math.ceil((paddingType == 'after')
+		? (data.height * config['zeroEndingWidthFactor'] + data.height * config['paddingFactor'] + config['strokeWidth']*2)
+		: ((data.height * config['paddingFactor']) + config['strokeWidth']));	// padding params in px
+		
 	var side = (paddingType != 'start') ? 'right' : 'left';
 	$(newNode).css('padding-' + side, val + 'px');
 	$(newNode).addClass('morfana-paddings morfana-paddings-' + side);
@@ -81,6 +84,7 @@ function wrapPadding(data, letterIndex, paddingType){
 	// rebuild map
 	data.maps.actual = getLettersMap(data.obj);
 }
+
 
 
 
@@ -102,24 +106,41 @@ function createImage(data, morphemeType, range)//morphemeType, obj, start, stop,
 	switch (morphemeType)
 	{
 		case 'ok':
+			var isLastLetter = !data.letters[range[0]+1];
+			var p = config['strokeWidth']; //config['paddingFactor']*h;
 			
 			if (range[1] != null){		// morpheme 'ending'
-				w = w + ((range[0] == range[1])?10:0);
-				x = x + ((range[0] != range[1])?5:0);
-				// compensate paddings for "ending"
-				x-=5;
-				if (range[0] != range[1]){
-					x-=5; w+=10;
-				}	
+				var ofs = h*config['paddingFactor']/2 + config['strokeWidth']*2;
+				x -= ofs; 
+				w += ofs*2;
+			
 			} else {				// morpheme 'zero-ending'
-				w = h*config['zeroEndingWidthFactor'] + 9;
-				x = x + data.metrics[range[0]].w + 2;
-
+				
+				if (isLastLetter){ 
+					// is last word letter
+					//x = x + data.metrics[range[0]].w + h*config['paddingFactor'];
+					x = x + data.metrics[range[0]].w + (data.width - (x + data.metrics[range[0]].w))/2 - h*config['paddingFactor']*2;
+					
+				} else {
+					// not last word letter
+					x = x + data.metrics[range[0]].w + (data.metrics[range[0]+1].x - (x + data.metrics[range[0]].w))/2 - h*config['paddingFactor']*2;
+				}
+				
+				w = h*config['zeroEndingWidthFactor'] + config['strokeWidth']*2;
 				// we have 'ending' stop on this letter and 'zero-ending' after this letter. 
 				// nonsense, but try to show it correctly.
 				if (data.letters[range[0]].stop && data.letters[range[0]].stop['ok']){	
-					x+=5;
+					x += h*config['paddingFactor']/2;
+					if (isLastLetter){
+						x += h*config['paddingFactor'] - config['strokeWidth']*2.5;
+					}						
 				}
+			
+				// but if after 'zero-ending' goes 'edning' again (nonsense too!) clear this:
+				if (data.letters[range[0]+1] && data.letters[range[0]+1].start && data.letters[range[0]+1].start['ok']){	
+					x -= h*config['paddingFactor']/2;
+				}
+				
 			}
 			
 			h*=1.35;
@@ -247,6 +268,7 @@ function calculateMetrics(data, justHeightReturnWordHeight){
 	// setting line-height to normal, calculating word's height
 	var h_lineHeightAsItWas = tmpDiv.height();	
 	setAllChildren(tmpDiv, 'line-height', 'normal');
+	data.width = tmpDiv.width();	// width of whole word
 	data.height = tmpDiv.height();	
 	data.heightDiff = h_lineHeightAsItWas - data.height;
 	

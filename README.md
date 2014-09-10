@@ -25,6 +25,11 @@ Demo HTML document
 For more demos visit [official website](http://morfana.ru/)
 
 ##Changelog
+`2.2.0b` / `10.09.2014`
+- Code refactoring: adding paddings for '(zero)-ending' and positioning them
+- Changed default of configp['zeroEndingWidthFactor'], now is  0.7
+- Added 'paddingFactor' to config, default is 0.2
+
 `2.1.1b` / `07.09.2014`
 - Added 'zeroEndingWidthFactor' to config
 - SVG for morpheme "ending" and "zero-ending" now contains not PATH but RECT 
