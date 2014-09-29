@@ -5,8 +5,8 @@
 
  Copyright 2013-2014, Pavel Kityan (pavel@kityan.ru)
  Licensed under the MIT license.
- Version: 2.2.0b
- Build date: 10 September 2014
+ Version: 2.3.0b
+ Build date: 29 September 2014
 */
 
 (function (root, factory) {
@@ -27,6 +27,7 @@
 
 var development = {colorize: false, log: false, showTmpDiv: false};
 var config = {}	;
+var onQueueEmptyCallback;
 
 // set default values
 configure({
@@ -549,7 +550,8 @@ function setAllChildren(obj, param, value) {
  * @param {string} selector - selector for jQuery
  * @param {string} markup - value for adding/replacing element's attribute "data-morfana-markup".
  */
-function draw (selector, markup) {
+function draw (selector, markup, callback) {
+	onQueueEmptyCallback = (callback) ? callback : undefined;
 	if (selector) {
 		if (markup) {
 			$(selector).data('morfana-markup', markup);
@@ -587,7 +589,12 @@ function doQueue() {
 	}
 	if (qty > 1) {	// more than 1 berfore queue.pop()?
 		setTimeout(doQueue, 10);
-	} 
+	} else {	// queue empty
+		if (onQueueEmptyCallback && typeof onQueueEmptyCallback == 'function'){
+			onQueueEmptyCallback();
+			onQueueEmptyCallback = undefined;
+		}
+	}
 }
 
 

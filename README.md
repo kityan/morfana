@@ -25,6 +25,10 @@ Demo HTML document
 For more demos visit [official website](http://morfana.ru/)
 
 ##Changelog
+`2.3.0b` / `29.09.2014`
+- Added 'callback' to Morfana.draw(). Called when queue goes empty.
+
+
 `2.2.0b` / `10.09.2014`
 - Code refactoring: adding paddings for '(zero)-ending' and positioning them
 - Changed default of configp['zeroEndingWidthFactor'], now is  0.7

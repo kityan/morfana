@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/rangy/1.2.3/rangy-core.js"></script>
+<script type="text/javascript" src="./../morfana.js"></script>
+<script type="text/x-morfana-config">Morfana.configure({autoStart: false});</script>
+</head>
+<body>
+<span class="test1" style="font-size: 25px; color: red;" data-morfana-markup="ok:3-5;ok:9-12;ko:1-2;ko:6-8;">двумя́ста́ми</span>
+<span class="test1" style="font-size: 25px; color: red;" data-morfana-markup="ok:3-5;ok:9-12;ko:1-2;ko:6-8;">двумя́ста́ми</span>
+<span class="next">next</span>
+
+
+<script type="text/javascript">
+$(document).ready(function(){
+	Morfana.draw('.test1', false, function(){console.log('callback1');});
+
+	$('.next').on('click', function(){
+		Morfana.draw('.test1', 'ko:1-1;ko:2-2');
+	});
+
+});
+</script>
+</body>
+</html>
+
+
