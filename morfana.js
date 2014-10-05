@@ -65,26 +65,6 @@ $(document).ready(function(){
 });
 
 
-/**
- * Wrap letter into spans with paddings. Called by wrapPaddings().
- */
-function wrapPadding(data, letterIndex, paddingType){
-	var rng = rangy.createRange();
-	rng.setStart(data.maps.actual[letterIndex].element, data.maps.actual[letterIndex].index);
-	rng.setEnd(data.maps.actual[letterIndex].element, data.maps.actual[letterIndex].index+1);	
-	var newNode = document.createElement('span');	
-	var val = Math.ceil((paddingType == 'after')
-		? (data.height * config['zeroEndingWidthFactor'] + data.height * config['paddingFactor'] + config['strokeWidth']*2)
-		: ((data.height * config['paddingFactor']) + config['strokeWidth']));	// padding params in px
-		
-	var side = (paddingType != 'start') ? 'right' : 'left';
-	$(newNode).css('padding-' + side, val + 'px');
-	$(newNode).addClass('morfana-paddings morfana-paddings-' + side);
-	rng.surroundContents(newNode);
-	
-	// rebuild map
-	data.maps.actual = getLettersMap(data.obj);
-}
 
 
 
@@ -195,8 +175,6 @@ function createImage(data, morphemeType, range)//morphemeType, obj, start, stop,
 
 
 
-
-
 /**
  * Main processing 
  */
@@ -206,10 +184,14 @@ function process(data) {
 	// remove previous elements if exist
 	clear(data.obj);
 
+
 	// get height of the whole word
 	// use calculateMetrics() with justHeightReturnWordHeight set to true
 	calculateMetrics(data, true);
 
+	// set letter-spacing:0 for letters which followed by stress mark
+	wrapBeforeStressMarks(data);	
+	
 	// add spans with paddings for morphemes "ending" and "zero-ending"
 	wrapPaddings(data);
 	
@@ -338,7 +320,7 @@ function createImages(data){
  */
 function wrapPaddings(data){
 	
-	for (var i=0, qty = data.maps.inital.length; i < qty; i++){
+	for (var i=0, qty = data.maps.actual.length; i < qty; i++){
 
 		// left paddings first (!) important for unwrapping, 'cause we get metrics by cutting word from its the end
 		if (data.letters[i].start['ok']) {
@@ -358,6 +340,59 @@ function wrapPaddings(data){
 	}
 
 }
+
+/**
+ * Wrap letter into spans with paddings. Called by wrapPaddings().
+ */
+function wrapPadding(data, letterIndex, paddingType){
+	var rng = rangy.createRange();
+	rng.setStart(data.maps.actual[letterIndex].element, data.maps.actual[letterIndex].index);
+	rng.setEnd(data.maps.actual[letterIndex].element, data.maps.actual[letterIndex].index+1);	
+	var newNode = document.createElement('span');	
+	var val = Math.ceil((paddingType == 'after')
+		? (data.height * config['zeroEndingWidthFactor'] + data.height * config['paddingFactor'] + config['strokeWidth']*2)
+		: ((data.height * config['paddingFactor']) + config['strokeWidth']));	// padding params in px
+		
+	var side = (paddingType != 'start') ? 'right' : 'left';
+	$(newNode).css('padding-' + side, val + 'px');
+	$(newNode).addClass('morfana-paddings morfana-paddings-' + side);
+	rng.surroundContents(newNode);
+	
+	// rebuild map
+	data.maps.actual = getLettersMap(data.obj);
+}
+
+
+
+
+/**
+ * Wrap letter into spans with letter-spacing: 0. Called by wrapBeforeStressMarks().
+ */
+function wrapBeforeStressMark(data, letterIndex){
+	var rng = rangy.createRange();
+	rng.setStart(data.maps.actual[letterIndex].element, data.maps.actual[letterIndex].index);
+	rng.setEnd(data.maps.actual[letterIndex].element, data.maps.actual[letterIndex].index+1);	
+	var newNode = document.createElement('span');	
+	$(newNode).css('letter-spacing', '0');
+	$(newNode).addClass('morfana-antistress');
+	rng.surroundContents(newNode);
+	
+	// rebuild map
+	data.maps.actual = getLettersMap(data.obj);
+}
+
+/**
+ * Go through data.letters  to find stress marks. Wrap letters before into spans with letter-spacing: 0.
+ */
+function wrapBeforeStressMarks(data){
+	for (var i=0, qty = data.maps.inital.length; i < qty; i++){
+
+		if (data.maps.inital[i].symbol.charCodeAt(0) == 769 && i > 0) {
+			wrapBeforeStressMark(data,i-1);
+		}		
+	}
+}
+
 
 
 
@@ -410,7 +445,7 @@ function preprocess(el) {
 	data.morphemes = {};	// by morpheme types
 	data.letters = [];	// by letters indexes (for reverse association with morphemes)
 	data.maps = {'inital': getLettersMap(data.obj)};	// inital letters map
-	data.maps.actual = $.extend(true, [], data.maps.inital)	// extending for wrapPaddings()
+	data.maps.actual = $.extend(true, [], data.maps.inital)	// extending for wrapPaddings(), wrapBeforeSressMarks()
 	
 	// how many letters in this word? We need total quantity to replace "ok:0" and "ok:0-0" to "ok:{totalLettersQty}-0"
 	var totalLettersQty = data['maps']['inital'].length;
@@ -511,6 +546,7 @@ function clear(selector){
 	obj.removeData('morfana-data-metrics');
 	obj.find(".morfana-graphics").remove();				// remove SVG
 	obj.find(".morfana-paddings").contents().unwrap();	// unwrap wrapped for paddings
+	obj.find(".morfana-antistress").contents().unwrap();	// unwrap wrapped for letter-spacing before stress marks
 	return true;
 }
 
@@ -619,7 +655,9 @@ function getLettersBounds(obj) {
 			// lets calculate metrics
 			var data = {maps: {}};
 				data.obj = obj;
-				data.maps.actual = getLettersMap(obj);
+				data.maps = {'inital': getLettersMap(data.obj)};	// inital letters map
+				data.maps.actual = $.extend(true, [], data.maps.inital)	// extending for wrapBeforeSressMarks()
+				wrapBeforeStressMarks(data);				
 				calculateMetrics(data);
 			return data.metrics;
 		}
