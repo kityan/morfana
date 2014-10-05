@@ -383,7 +383,7 @@ function getLettersMap(obj) {
 			} else {
 				for (var j=0; j < data.length; j++)	{
 					// map all letters of this fragment of word
-					map[shift] = {'element': obj[0].childNodes[i], 'index': j};
+					map[shift] = {'element': obj[0].childNodes[i], 'index': j, 'symbol': data[j]};
 					shift++;
 				}
 			}

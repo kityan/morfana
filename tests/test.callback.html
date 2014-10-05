@@ -15,7 +15,7 @@
 
 <script type="text/javascript">
 $(document).ready(function(){
-	Morfana.draw('.test1', false, function(){console.log('callback1');});
+	Morfana.draw(false, false, function(){console.log('callback1');});
 
 	$('.next').on('click', function(){
 		Morfana.draw('.test1', 'ko:1-1;ko:2-2');
