@@ -31,16 +31,18 @@ var onQueueEmptyCallback;
 
 // set default values
 configure({
-	autoStart: true, 		// start Morfana after loading complete
+	autoStart: true, 		// start Morfana after DOM is ready
 	freezeWord: false, 		// add vertical padding to word's span or "freeze" word in its inital place
 	strokeWidth: 1.5,		// px
 	stroke: 'rgb(150,150,150)',
-	disablePointerEvents: true,	// add pointer-events: none to each svg
+	disablePointerEvents: true,	// add 'pointer-events: none' to each svg
 	zeroEndingWidthFactor: 0.7,	// now: width of "zero-ending" = data.height * zeroEndingWidthFactor
-	paddingFactor: 0.2			// now: width of padding for "ending" = data.height * paddingFactor
+	paddingFactor: 0.2,			// now: width of padding for "ending" = data.height * paddingFactor
+	stressMarksIgnored: false,	// each stress mark should be counted as a symbol when defining a range for a command
+	hyphensIgnored: true		// each hyphen should be counted as a symbol when defining a range for a command
 });
 
-// Queue - array for processing words with setInterval()
+// Queue - array for processing words by setInterval()
 var queue = [];
 
 // DOM ready
@@ -60,15 +62,17 @@ $(document).ready(function(){
 	// rangy init
 	rangy.init();
 	
-	// autostart if not denied by user
+	// autostart if not disabled by user
 	if (config['autoStart']){draw();}
 });
 
 
-
-
-
-
+// clean "data-morfana-markup" value, splitting.
+// [+] do syntax check, throw errors. Allowed format: /(([a-zA-Z]+)\s*:\s*((\d+)\s*-\s*(\d+)|0))|(ok\s*:\s*\d)/
+// [+] remove duplicates ?
+function cleanMarkup(markup){
+	return 	markup.replace(/\s/g, "").replace(/;$/, "");
+}
 
 /**
  * Create SVG for morpheme. Called by createImages().
@@ -243,7 +247,7 @@ function calculateMetrics(data, justHeightReturnWordHeight){
 	var objHTML = data.obj.html();
 	
 	// creating temporary div inside word's element
-	var tmpDiv = $('<div style="' + ((development.showTmpDiv)?"":"left: -1000px; visibility: hidden;") + 
+	var tmpDiv = $('<div style="font: inherit !important; letter-spacing: inherit !important;' + ((development.showTmpDiv)?"":"left: -1000px; visibility: hidden;") + 
 			'width: auto; height: auto; position: absolute;" id="morfana_tmpDiv" />')
 		.appendTo(data.obj)
 		.html(objHTML);
@@ -458,14 +462,8 @@ function preprocess(el) {
 		}; 
 	}	
 	
-	// clean "data-morfana-markup" value, splitting.
-	// [+] do syntax check, throw errors. Allowed format: /(([a-zA-Z]+)\s*:\s*((\d+)\s*-\s*(\d+)|0))|(ok\s*:\s*\d)/
-	// [+] remove duplicates ?
 	
-	var morphemes = data.obj.data('morfana-markup')
-		.replace(/\s/g, "")
-		.replace(/;$/, "")
-		.split(";");
+	var morphemes = cleanMarkup(data.obj.data('morfana-markup')).split(";");
 	
 	// go throw array with strings (e.g., "ok:5-6", "ko:2-3", "ok:0", "ok:4")
 	for (var i=0, qty = morphemes.length; i < qty; i++) {
@@ -668,6 +666,35 @@ function getLettersBounds(obj) {
 }
 
 
+
+/**
+ * [API] converts markup
+ */
+function convertMarkup(text, markup, from, to) {
+
+	if (from == 'STRESS_MARKS_IGNORED' && to == 'STRESS_MARKS_NOT_IGNORED'){	// convert markup from markup which was made for word without stress marks to markup for word with stress marks added
+		var markupConverted = '';
+		var stressMark = String.fromCharCode(769); 
+		var indexes = [], i = -1;
+		while ((i = text.indexOf(stressMark, i+1)) != -1){
+			indexes.push(i);
+		}
+		var cmds = cleanMarkup(markup).split(';');
+		
+		for (var j=0, qty = cmds.length; j < qty; j++){
+			var cmd =  cmds[j].split(':');
+			var range = cmd[1].split('-');
+			for (var k=0, qty2 = indexes.length; k < qty2; k++){			
+				if (range[0] && range[0] > indexes[k]){range[0]++;}
+				if (range[1] && range[1] > indexes[k]){range[1]++;}
+			}
+			markupConverted += (cmd[0] + ':' + range[0] + ((typeof range[1] != 'undefined') ? ('-' + range[1]) : '') + ';')
+		}
+		console.log(markup, markupConverted);
+		return cleanMarkup(markupConverted);
+	}
+}
+
 // Exporting API
 var Morfana = {};
 Morfana.draw = draw;
@@ -675,6 +702,7 @@ Morfana.clear = clear;
 Morfana.configure = configure;
 Morfana.getLettersMap = getLettersMap;
 Morfana.getLettersBounds = getLettersBounds;
+Morfana.convertMarkup = convertMarkup;
 return Morfana;
 
 }));
