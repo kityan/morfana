@@ -229,7 +229,7 @@ function process(data) {
 	if (!data.config['freezeWord']) {
 		data.obj.css({
 			'margin-top': (data.height * 0.85) + 'px',
-			'margin-bottom': (data.height * 0.45) + 'px'
+			'margin-bottom': (data.height * 0.35) + 'px'
 		});
 	}
 
