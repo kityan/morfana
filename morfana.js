@@ -71,7 +71,9 @@ $(document).ready(function(){
 // [+] do syntax check, throw errors. Allowed format: /(([a-zA-Z]+)\s*:\s*((\d+)\s*-\s*(\d+)|0))|(ok\s*:\s*\d)/
 // [+] remove duplicates ?
 function cleanMarkup(markup){
-	return 	markup.replace(/\s/g, "").replace(/;$/, "");
+	if (markup){
+		return 	markup.replace(/\s/g, "").replace(/;$/, "");
+	} else {return markup;}
 }
 
 /**
@@ -224,10 +226,10 @@ function process(data) {
 	});
 
 	// compensate height of morhpemes if not deined in config
-	if (!config['freezeWord']) {
+	if (!data.config['freezeWord']) {
 		data.obj.css({
 			'margin-top': (data.height * 0.85) + 'px',
-			'margin-bottom': (data.height * 0.35) + 'px'
+			'margin-bottom': (data.height * 0.45) + 'px'
 		});
 	}
 
@@ -446,6 +448,7 @@ function preprocess(el) {
 	
 	var data = {};			// processing config for current queue element
 	data.obj = $(el);	// jQuery object for word's element
+	data.config = {freezeWord: config['freezeWord']}; 	// per word config
 	data.morphemes = {};	// by morpheme types
 	data.letters = [];	// by letters indexes (for reverse association with morphemes)
 	data.maps = {'inital': getLettersMap(data.obj)};	// inital letters map
@@ -454,6 +457,18 @@ function preprocess(el) {
 	// how many letters in this word? We need total quantity to replace "ok:0" and "ok:0-0" to "ok:{totalLettersQty}-0"
 	var totalLettersQty = data['maps']['inital'].length;
 
+	// per word configuration: freezeWord
+	if (data.obj.data('morfana-config')){
+		var wordConfig = cleanMarkup(data.obj.data('morfana-config')).split(";");
+		for (var i=0, qty = wordConfig.length; i < qty; i++) {
+			var _tmp = wordConfig[i].split(":");
+			if (_tmp[0] == 'freezeWord'){
+				if (_tmp[1] == 'false'){data.config.freezeWord = false;} 
+				else if (_tmp[1] == 'true'){data.config.freezeWord = true;}
+			}
+		}	
+	}
+	
 	for (var i=0; i < totalLettersQty; i++){
 		data.letters[i] = {
 			'start':{}, // morphemes which start on letter with this index
