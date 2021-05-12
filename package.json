@@ -1,0 +1,95 @@
+{
+  "name": "@foxford/morfana",
+  "version": "0.0.1",
+  "description": "Morphemes higlighting library",
+  "bugs": {
+    "url": "https://github.com/netology-group/morfana/issues"
+  },
+  "repository": {
+    "url": "https://github.com/netology-group/morfana"
+  },
+  "license": "MIT",
+  "author": "OLC Foxford LLC",
+  "contributors": [
+    "Natalia Chigryay <n.chigryay@netology-group.ru>"
+  ],
+  "files": [
+    "es"
+  ],
+  "main": "lib/index.js",
+  "module": "es/index.js",
+  "directories": {
+    "lib": "es",
+    "man": "docs"
+  },
+  "typings": "es/index.d.ts",
+  "scripts": {
+    "babel": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
+    "prebuild": "rm -rf es && mkdir -p es",
+    "build": "npm run build:types && npm run build:es",
+    "build:es": "cross-env BABEL_ENV=production npm run babel -- -d es",
+    "build:types": "tsc --emitDeclarationOnly --project './tsconfig.json'",
+    "precoverage": "rm -rf .nyc_output coverage && mkdir -p coverage",
+    "coverage": "npm run nodetap -- --nyc-arg=--require=./test/babel-register.js --cov",
+    "postcoverage": "tap --coverage-report=text-lcov > coverage/coverage.lcov && codecov",
+    "lint": "npm run eslint",
+    "eslint": "eslint --ext .jsx,.js,.ts -c .eslintrc.js ./src",
+    "nodetap": "tap test/**/*.test.js",
+    "prepublishOnly": "cross-env NODE_ENV=production npm run build",
+    "start": "npm run type-check:watch",
+    "tap": "npm run nodetap -- --node-arg=--require=./test/babel-register.js",
+    "test": "npm run tap",
+    "type-check": "tsc --noEmit --project './tsconfig.json'",
+    "type-check:watch": "npm run type-check -- --watch"
+  },
+  "dependencies": {
+    "ramda": "^0.25.x || ^0.26.x",
+    "react": "^16.x || ^17.x",
+    "react-dom": "^16.x || ^17.x"
+  },
+  "devDependencies": {
+    "@babel/cli": "7.13.10",
+    "@babel/eslint-parser": "7.13.10",
+    "@babel/preset-typescript": "^7.12.1",
+    "@babel/register": "7.13.14",
+    "@foxford/babel-preset-react-app": "1.2.1",
+    "@typescript-eslint/eslint-plugin": "^4.20.0",
+    "@typescript-eslint/parser": "^4.20.0",
+    "babel-plugin-jsx-control-statements": "4.0.0",
+    "babel-plugin-ramda": "2.0.0",
+    "babel-plugin-styled-components": "1.11.1",
+    "babel-plugin-transform-es2015-modules-commonjs": "6.26.2",
+    "codecov": "3.1.0",
+    "concurrently": "5.0.1",
+    "cross-env": "5.2.0",
+    "eslint": "7.12.0",
+    "eslint-config-adequate": "2.0.3",
+    "eslint-config-airbnb": "18.0.1",
+    "eslint-config-airbnb-base": "14.2.1",
+    "eslint-config-prettier": "6.9.0",
+    "eslint-import-resolver-babel-module": "5.1.1",
+    "eslint-import-resolver-webpack": "0.12.1",
+    "eslint-plugin-eslint-comments": "^3.2.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsdoc": "20.3.1",
+    "eslint-plugin-jsx-a11y": "6.2.3",
+    "eslint-plugin-jsx-control-statements": "^2.2.1",
+    "eslint-plugin-prettier": "3.1.2",
+    "eslint-plugin-promise": "4.0.1",
+    "eslint-plugin-react": "7.18.0",
+    "eslint-plugin-react-hooks": "2.5.0",
+    "eslint-plugin-simple-import-sort": "5.0.1",
+    "eslint-plugin-standard": "4.0.0",
+    "eslint-plugin-unicorn": "6.0.1",
+    "eslint-restricted-globals": "0.2.0",
+    "prettier": "1.19.1",
+    "tap": "12.5.3",
+    "ts-node": "^8.10.2",
+    "typescript": "^4.2.4"
+  },
+  "peerDependencies": {
+    "ramda": "^0.25.x || ^0.26.x",
+    "react": "^16.x || ^17.x",
+    "react-dom": "^16.x || ^17.x"
+  }
+}

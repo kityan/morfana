@@ -1,2 +1,11 @@
 tmp
 morfana.min.js
+
+/es
+/node_modules
+/coverage
+tsconfig.tsbuildinfo
+
+.idea
+.vscode
+.DS_Store
