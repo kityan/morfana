@@ -77,7 +77,6 @@ export type SymbolsMap = SymbolsMapItem[]
 export interface LetterProps extends DebugableProps {
   className?: string
   key?: number
-  ref?: ForwardedRef<HTMLSpanElement>
   symbol: SymbolsMapItem['symbol']
   index: SymbolsMapItem['index']
   width: number
@@ -85,7 +84,6 @@ export interface LetterProps extends DebugableProps {
 }
 
 export interface LetterRootProps extends BasicStyledProps, DebugableProps {
-  ref?: LetterProps['ref']
   width: LetterProps['width']
   height: LetterProps['height']
   lineHeight: LetterProps['height']
