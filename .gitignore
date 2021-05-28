@@ -1,10 +1,11 @@
 tmp
-morfana.min.js
 
 /es
 /node_modules
 /coverage
+/storybook-static
 tsconfig.tsbuildinfo
+/coverage
 
 .idea
 .vscode
