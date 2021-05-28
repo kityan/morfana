@@ -1,4 +1,3 @@
-// import { ReactNode } from 'react'
 import { MarkupData, PreparedWord, SymbolsMap, SymbolsMapItem } from '../types'
 
 /**

@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["./src", ".eslintrc.js", "./babel.config.js", "jest.config.js"]
+}

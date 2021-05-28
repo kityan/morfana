@@ -1,11 +1,8 @@
 module.exports = {
-  preset: 'ts-jest',
+  // preset: 'ts-jest',
   testEnvironment: 'node',
-  coverageProvider: 'babel',
-  coverageReporters: ['lcov'],
-  transform: {
-    '^.+\\.(ts\\.*|tsx)$': 'ts-jest',
-  },
-  transformIgnorePatterns: ['^.+\\.(js)$'],
-  projects: ['<rootDir>/jest.config.js'],
+  // coverageProvider: 'babel',
+  // coverageReporters: ['lcov'],
+  // transformIgnorePatterns: ['^.+\\.(js)$'],
+  // projects: ['<rootDir>/jest.config.js'],
 }

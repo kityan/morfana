@@ -7,7 +7,7 @@ module.exports = {
     '@babel/preset-typescript',
   ],
   plugins: [
-    '@babel/plugin-proposanpm l-class-properties',
+    '@babel/plugin-proposal-class-properties',
     '@babel/plugin-proposal-object-rest-spread',
     'babel-plugin-ramda',
     'babel-plugin-jsx-control-statements',

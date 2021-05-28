@@ -104,6 +104,12 @@ export interface WordRootProps extends BasicStyledProps {
 
 export type ErrorsLogLevel = 'error' | 'warn' | 'info' | 'none'
 
+export type Logger = {
+  info: (message: string) => void,
+  warn: (message: string) => void,
+  error: (message: string) => void | Error,
+}
+
 export type Config = Required<{
   /** Morpheme view stroke width (px) */
   strokeWidth: number
@@ -135,6 +141,8 @@ export type Config = Required<{
   morphemesTypesMap: MorphemesTypes
   /** Errors log level */
   errorsLogLevel: ErrorsLogLevel
+  /** logger */
+  logger: Logger
 }>
 
 export type PartialConfig = Partial<Config>

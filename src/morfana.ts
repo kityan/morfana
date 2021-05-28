@@ -12,6 +12,7 @@ import {
   SymbolsMap,
   MorphemesTypes,
   ErrorsLogLevel,
+  Logger,
 } from './types'
 import { DEFAULT_CONFIG } from './data/config'
 
@@ -24,8 +25,8 @@ import { DEFAULT_CONFIG } from './data/config'
 export class Morfana {
   config: Config = DEFAULT_CONFIG
 
-  constructor(options: { config: PartialConfig } = { config: {} }) {
-    this.config = { ...this.config, ...options.config }
+  constructor(config: PartialConfig = {}) {
+    this.config = { ...this.config, ...config }
   }
 
   /**
@@ -49,33 +50,34 @@ export class Morfana {
   }
 
   /**
-   * Log error
+   * Log error or other message
    *
    * @param {string} message
    * @param {(PartialConfig & MarkupPartialConfig & { errorsLogLevel: ErrorsLogLevel })} [config=this.config]
    * @returns {void}
    * @memberof Morfana
    */
-  throwError = (
+  log = (
     message: string,
-    config: PartialConfig & MarkupPartialConfig & { errorsLogLevel: ErrorsLogLevel } = this.config
+    level?: ErrorsLogLevel,
+    config: PartialConfig & MarkupPartialConfig & { errorsLogLevel: ErrorsLogLevel, logger: Logger } = this.config
   ): void => {
-    const { errorsLogLevel } = config
+    const { errorsLogLevel, logger } = config
 
-    if (errorsLogLevel === 'error') {
-      throw new Error(message)
+    const logLevel = level || errorsLogLevel
+
+    if (logLevel === 'error') {
+      logger.error(message)
     }
 
-    if (errorsLogLevel === 'warn') {
-      // eslint-disable-next-line no-console
-      console.warn(message)
+    if (logLevel === 'warn') {
+      logger.warn(message)
 
       return undefined
     }
 
-    if (errorsLogLevel === 'info') {
-      // eslint-disable-next-line no-console
-      console.info(message)
+    if (logLevel === 'info') {
+      logger.info(message)
 
       return undefined
     }
@@ -121,7 +123,7 @@ export class Morfana {
     })
 
     if (invalidElements.length > 0) {
-      this.throwError(`Invalid markup elements: ${invalidElements.join(', ')}`)
+      this.log(`Invalid markup elements: ${invalidElements.join(', ')}`)
     }
 
     return validElements
@@ -143,9 +145,19 @@ export class Morfana {
   }): MarkupElements => {
     const { markupItemsDelimeter } = config
 
-    const markupElements = markup.split(markupItemsDelimeter)
+    const trimmedMarkup = markup.endsWith(markupItemsDelimeter) ? markup.slice(0, -1) : markup
+
+    if (trimmedMarkup.length === 0) {
+      this.log('Markup is empty!')
+
+      return [] as MarkupElements
+    }
+
+    const markupElements = trimmedMarkup.split(markupItemsDelimeter)
 
     const validMarkupElements = this.validateMarkup({ markupElements, config })
+
+
 
     return validMarkupElements
   }
@@ -167,7 +179,7 @@ export class Morfana {
    * @returns {MarkupData}
    * @memberof Morfana
    */
-  prepareMarkupData = ({
+  getMarkupData = ({
     markupElements,
     config = this.config,
   }: {
@@ -238,7 +250,7 @@ export class Morfana {
   }): { symbolsMap: SymbolsMap; markupData: MarkupData } => {
     const preparedWord = this.prepareWord({ word, config })
     const markupElements = this.parseMarkup({ markup, config })
-    const markupData = this.prepareMarkupData({ markupElements, config })
+    const markupData = this.getMarkupData({ markupElements, config })
     const symbolsMap = this.getSymbolsMap(preparedWord, markupData)
 
     return { symbolsMap, markupData }

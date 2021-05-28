@@ -1,7 +1,13 @@
-import { Config } from '../types'
+import { Config, Logger } from '../types'
 import { Letter } from '../components/letter'
 import { MorphemeWrapper } from '../components/morpheme-wrapper'
 import { MORPHEMES_VIEWS, MORPHEMES_TYPES } from './morphemes'
+
+export const LOGGER: Logger = {
+  info: console.info,
+  warn: console.warn,
+  error: (message) => { throw new Error(message) },
+}
 
 export const DEFAULT_CONFIG: Config = {
   strokeWidth: 4, // px
@@ -19,4 +25,5 @@ export const DEFAULT_CONFIG: Config = {
   morphemesViewsMap: MORPHEMES_VIEWS,
   morphemesTypesMap: MORPHEMES_TYPES,
   errorsLogLevel: 'warn',
+  logger: LOGGER,
 }

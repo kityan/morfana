@@ -58,6 +58,7 @@ Replace letter or morpheme wrapper to ad interactivity.
 | morphemesViewsMap        | MorphemesViews             | Custom morpheme views component map                                 |
 | morphemesTypesMap        | MorphemesTypes             | Custom morpheme types map (used in markup)                          |
 | errorsLogLevel           | ErrorsLogLevel             | Errors log level                                                    |
+| logger                   | Logger                     | Logger with 3 methods: info, warn, error                            |
 
 ## Methods
 
@@ -67,10 +68,10 @@ Morfana's class methods
 | ----------------------- | ------------------------------------------------------------------------------------------ |
 | setConfig               | Set instance config                                                                        |
 | getConfig               | Get instance config                                                                        |
-| throwError              | Log error (according to current log level                                                  |
+| log                     | Log error or other message (according to current log level)                                |
 | validateMarkup          | Check validity of markup elements string e.g. "ro:1-5", return valid values                |
 | parseMarkup             | Parse markup string e.g. "ro:1-5;en:6-8;st:1-5;" into array "ro:1-5", "en:6-8", "st:1-5"   |
-| prepareMarkupData       | Prepare markup data, e.g. from array of 'ro:1-5' to array of { type: 'ro', range: [1, 5] } |
+| getMarkupData           | Prepare markup data, e.g. from array of 'ro:1-5' to array of { type: 'ro', range: [1, 5] } |
 | prepareWord             | Prepare word for parsing (add zero ending symbol)                                          |
 | getSymbolsMap           | Get symbols map with morhpemes data                                                        |
 | process                 | Process markup and word to get symbols map and markup data for the markup display          |
