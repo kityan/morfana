@@ -1,0 +1,25 @@
+version: v1.0
+name: npm publish pipeline
+
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+
+blocks:
+  - name: 🛳 Publish at npm
+    task:
+      secrets:
+        - name: npm-token
+      jobs:
+        - name: Publish at npm
+          commands:
+            - checkout
+            - nvm use
+            - node --version
+            - npm --version
+            - npm ci # Just restoring cache results in issue with node-sass
+            - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
+            - source ./scripts/get-tag.sh # set current tag
+            - ./scripts/npm-publish.sh
+            - rm -rf .npmrc

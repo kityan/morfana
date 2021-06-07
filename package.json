@@ -33,7 +33,7 @@
     "coverage": "npm run jest -- --coverage --ci",
     "coverage/report": "npm run jest && codecov --disable=gcov",
     "lint": "npm run eslint",
-    "eslint": "eslint --ext .jsx,.js,.ts -c .eslintrc ./src",
+    "eslint": "eslint --ext .jsx,.js,.ts -c .eslintrc.js ./src",
     "prepublishOnly": "cross-env NODE_ENV=production npm run build",
     "start": "npm run type-check:watch",
     "test": "NODE_ENV=test BABEL_ENV=test jest",

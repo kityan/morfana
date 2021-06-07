@@ -1,4 +1,5 @@
-import path from 'path'
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const path = require('path')
 
 module.exports = {
   parser: '@typescript-eslint/parser',
@@ -18,6 +19,7 @@ module.exports = {
     'adequate',
     'plugin:import/typescript',
     'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/eslint-recommended',
     'plugin:prettier/recommended',
     'prettier/@typescript-eslint',
     'plugin:jest/recommended',
@@ -55,7 +57,6 @@ module.exports = {
     'no-console': ['warn'],
     'arrow-parens': 0,
     'import/order': ['warn', { groups: ['builtin', 'external', 'index', 'internal', 'parent', 'sibling'] }],
-    'no-unused-vars': ['error', { argsIgnorePattern: '^_', ignoreRestSiblings: true }],
     // React
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'warn',
@@ -126,5 +127,5 @@ module.exports = {
       version: 'detect',
     },
   },
-  ignorePatterns: ['/es/**', '/node_modules/**', 'tsconfig.tsbuildinfo', '/storybook-static'],
+  ignorePatterns: ['/es/**', '/node_modules/**', 'tsconfig.tsbuildinfo', '/storybook-static', '/test'],
 }

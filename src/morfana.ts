@@ -60,7 +60,7 @@ export class Morfana {
   log = (
     message: string,
     level?: ErrorsLogLevel,
-    config: PartialConfig & MarkupPartialConfig & { errorsLogLevel: ErrorsLogLevel, logger: Logger } = this.config
+    config: PartialConfig & MarkupPartialConfig & { errorsLogLevel: ErrorsLogLevel; logger: Logger } = this.config
   ): void => {
     const { errorsLogLevel, logger } = config
 
@@ -156,8 +156,6 @@ export class Morfana {
     const markupElements = trimmedMarkup.split(markupItemsDelimeter)
 
     const validMarkupElements = this.validateMarkup({ markupElements, config })
-
-
 
     return validMarkupElements
   }

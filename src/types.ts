@@ -1,4 +1,4 @@
-import { ForwardedRef, ReactNode, FC } from 'react'
+import { ReactNode, FC } from 'react'
 
 export interface BasicStyledProps {
   className?: string
@@ -102,10 +102,10 @@ export interface WordRootProps extends BasicStyledProps {
 
 export type ErrorsLogLevel = 'error' | 'warn' | 'info' | 'none'
 
-export type Logger = {
-  info: (message: string) => void,
-  warn: (message: string) => void,
-  error: (message: string) => void | Error,
+export interface Logger {
+  info(message?: string): void
+  warn(message?: string): void
+  error(message?: string): void | Error
 }
 
 export type Config = Required<{

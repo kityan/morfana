@@ -4,9 +4,13 @@ import { MorphemeWrapper } from '../components/morpheme-wrapper'
 import { MORPHEMES_VIEWS, MORPHEMES_TYPES } from './morphemes'
 
 export const LOGGER: Logger = {
+  // eslint-disable-next-line no-console
   info: console.info,
+  // eslint-disable-next-line no-console
   warn: console.warn,
-  error: (message) => { throw new Error(message) },
+  error: (message) => {
+    throw new Error(message)
+  },
 }
 
 export const DEFAULT_CONFIG: Config = {

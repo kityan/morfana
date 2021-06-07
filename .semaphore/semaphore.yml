@@ -1,0 +1,57 @@
+version: v1.0
+name: Morfana CI pipeline
+
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+
+execution_time_limit:
+  minutes: 15
+
+blocks:
+  - name: ⏬ Install dependencies
+    task:
+      jobs:
+        - name: 💾 Install and cache
+          commands:
+            - checkout
+            - nvm use
+            - node --version
+            - npm --version
+            - cache restore node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),node-modules-$SEMAPHORE_GIT_BRANCH,node-modules-master
+            - npm ci
+            - cache store node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json) node_modules
+
+  - name: 🔎 Code linting, testing & building
+
+    task:
+      prologue:
+        commands:
+          - checkout
+          - nvm use
+          - node --version
+          - npm --version
+          - cache restore node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),node-modules-$SEMAPHORE_GIT_BRANCH,node-modules-master
+
+      jobs:
+        - name: ⚖️ Eslint
+          commands:
+            - npm run lint
+
+        - name: ☑️ Test
+          commands:
+            - npm run test
+
+        - name: 🏗 Build
+          commands:
+            - npm run prepublishOnly
+
+promotions:
+  - name: 🚢 Publish at npm
+    pipeline_file: npm-publish.yml
+    auto_promote_on:
+      - result: passed
+        branch:
+          - "refs/tags/v\\d+\\.\\d+\\.\\d+"
+          - master
