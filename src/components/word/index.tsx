@@ -4,14 +4,14 @@ import { MorfanaContext } from '../../contexts/morfana'
 import { Morpheme } from '../morpheme'
 import * as Styled from './styled'
 
-export const Word: FC<WordProps> = ({ className, symbolsMap, markupData, debug }: WordProps) => {
-  const { Morfana } = useContext(MorfanaContext)
-  const {
-    letterWidth,
-    letterHeight,
-    letterComponent: Letter,
-    morphemeWrapperComponent: MorphemeWrapper,
-  } = Morfana.getConfig()
+export const Word: FC<WordProps> = ({ className = '', symbolsMap, markupData, debug = false }: WordProps) => {
+  const { Morfana, wordConfig = {} } = useContext(MorfanaContext)
+  const MorfanaConfig = Morfana.getConfig()
+
+  const letterWidth = wordConfig.letterWidth || MorfanaConfig.letterWidth
+  const letterHeight = wordConfig.letterHeight || MorfanaConfig.letterHeight
+  const Letter = wordConfig.letterComponent || MorfanaConfig.letterComponent
+  const MorphemeWrapper = wordConfig.morphemeWrapperComponent || MorfanaConfig.morphemeWrapperComponent
 
   if (symbolsMap.length === 0) return null
 

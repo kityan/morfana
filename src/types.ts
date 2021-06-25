@@ -1,7 +1,7 @@
 import { ReactNode, FC } from 'react'
 
 export interface BasicStyledProps {
-  className?: string
+  className?: string | void
   children?: ReactNode
 }
 
@@ -44,6 +44,7 @@ export interface MorphemeProps extends MarkupDataItem, DebugableProps {
 }
 
 export interface MorphemeViewProps extends BasicStyledProps {
+  className?: string
   width: number
   height: number
   position?: 'top' | 'bottom' | 'middle'
@@ -158,4 +159,11 @@ export interface MarkedWordProps extends DebugableProps {
   markup: Markup
   word: Word
   config: MarkupPartialConfig
+}
+
+export interface WordConfig {
+  letterWidth?: Config['letterWidth']
+  letterHeight?: Config['letterHeight']
+  letterComponent?: Config['letterComponent']
+  morphemeWrapperComponent?: Config['morphemeWrapperComponent']
 }

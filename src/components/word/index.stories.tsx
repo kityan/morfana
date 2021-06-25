@@ -1,8 +1,7 @@
 import React from 'react'
 import { Story, Meta } from '@storybook/react'
-import '../../stories/main.css'
-
 import { Word, WordProps } from './index'
+import '../../stories/main.css'
 
 export default {
   title: 'Word',

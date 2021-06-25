@@ -4,11 +4,11 @@ import { MorfanaContext } from '../../contexts/morfana'
 import { Word } from '../word'
 
 export const MarkedWord: FC<MarkedWordProps> = ({
-  className,
+  className = '',
   markup = '',
   word = '',
   config,
-  debug,
+  debug = false,
 }: MarkedWordProps) => {
   const { Morfana } = useContext(MorfanaContext)
   if (!word?.length) return null

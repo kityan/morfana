@@ -3,10 +3,10 @@ import { MorphemeViewProps } from '../../../types'
 import * as Styled from '../styled'
 
 export const Suffix: FC<MorphemeViewProps> = ({
-  className,
+  className = '',
   width: w,
   height: h,
-  position,
+  position = 'top',
   strokeWidth,
   strokeColor,
   morphemeHeightRatio,
