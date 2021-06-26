@@ -28,6 +28,8 @@ export type MarkupElements = MarkupElement[]
 
 export type MorphemeRange = [number, number]
 
+export type MorphemeRangeString = string
+
 export interface MarkupDataItem {
   type: MorphemeType
   range: MorphemeRange

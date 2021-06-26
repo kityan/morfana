@@ -13,6 +13,8 @@ import {
   MorphemesTypes,
   ErrorsLogLevel,
   Logger,
+  MorphemeRange,
+  MorphemeRangeString,
 } from './types'
 import { DEFAULT_CONFIG } from './data/config'
 
@@ -148,8 +150,6 @@ export class Morfana {
     const trimmedMarkup = markup.endsWith(markupItemsDelimeter) ? markup.slice(0, -1) : markup
 
     if (trimmedMarkup.length === 0) {
-      this.log('Markup is empty!')
-
       return [] as MarkupElements
     }
 
@@ -158,6 +158,42 @@ export class Morfana {
     const validMarkupElements = this.validateMarkup({ markupElements, config })
 
     return validMarkupElements
+  }
+
+  /**
+   * Parse morpheme range string
+   *
+   * @memberof Morfana
+   */
+  parseRange = ({
+    rangeString,
+    config = this.config,
+  }: {
+    rangeString: MorphemeRangeString
+    config?: PartialConfig & {
+      markupRangeDelimeter: Config['markupRangeDelimeter']
+    }
+  }): MorphemeRange => {
+    const [rangeStart, rangeEnd] = rangeString.split(config.markupRangeDelimeter).map((i) => parseInt(i))
+
+    return [rangeStart, rangeEnd]
+  }
+
+  /**
+   * Serialize morpheme range
+   *
+   * @memberof Morfana
+   */
+  serializeRange = ({
+    range,
+    config = this.config,
+  }: {
+    range: MorphemeRange
+    config?: PartialConfig & {
+      markupRangeDelimeter: Config['markupRangeDelimeter']
+    }
+  }): MorphemeRangeString => {
+    return range.join(config.markupRangeDelimeter)
   }
 
   /**
@@ -187,11 +223,11 @@ export class Morfana {
       markupRangeDelimeter: Config['markupRangeDelimeter']
     }
   }): MarkupData => {
-    const { markupKeyValDelimeter, markupRangeDelimeter } = config
+    const { markupKeyValDelimeter } = config
 
     const markupData = markupElements.map((item) => {
       const [key, value] = item.split(markupKeyValDelimeter)
-      const [rangeStart, rangeEnd] = value.split(markupRangeDelimeter).map((i) => parseInt(i))
+      const [rangeStart, rangeEnd] = this.parseRange({ rangeString: value, config })
 
       return { type: key, range: [rangeStart, rangeEnd] } as MarkupDataItem
     })
@@ -274,12 +310,12 @@ export class Morfana {
     markupData: MarkupData
     config?: MarkupPartialConfig
   }): Markup => {
-    const { markupKeyValDelimeter, markupRangeDelimeter, markupItemsDelimeter } = config
+    const { markupKeyValDelimeter, markupItemsDelimeter } = config
     const markupElements: MarkupElements = []
 
-    markupData.reduce((acc, { type, range: [rangeMin, rangeMax] }) => {
-      const range = `${rangeMin}${markupRangeDelimeter}${rangeMax}`
-      const item = `${type}${markupKeyValDelimeter}${range}`
+    markupData.reduce((acc, { type, range }) => {
+      const rangeString = this.serializeRange({ range, config })
+      const item = `${type}${markupKeyValDelimeter}${rangeString}`
 
       acc.push(item)
 

@@ -35,9 +35,7 @@ describe('parseMarkup', ()=>{
     expect(() =>{
       Mf.parseMarkup({ markup: 'ro:1-5;e#n:6-8;s@t:1-5;' })
     }).toThrow('Invalid markup elements: e#n:6-8, s@t:1-5')
-    expect(() =>{
-      Mf.parseMarkup({ markup: '' })
-    }).toThrow('Markup is empty!')
+    expect(Mf.parseMarkup({ markup: '' })).toEqual([])
   })
 })
 
