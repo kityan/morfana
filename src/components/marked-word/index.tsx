@@ -8,6 +8,7 @@ export const MarkedWord: FC<MarkedWordProps> = ({
   markup = '',
   word = '',
   config,
+  foregroundLetters,
   debug = false,
 }: MarkedWordProps) => {
   const { Morfana } = useContext(MorfanaContext)
@@ -15,7 +16,15 @@ export const MarkedWord: FC<MarkedWordProps> = ({
 
   const { symbolsMap, markupData } = Morfana.process({ word, markup, config })
 
-  return <Word className={className} symbolsMap={symbolsMap} markupData={markupData} debug={debug} />
+  return (
+    <Word
+      className={className}
+      symbolsMap={symbolsMap}
+      markupData={markupData}
+      foregroundLetters={foregroundLetters}
+      debug={debug}
+    />
+  )
 }
 
 export { MarkedWordProps }

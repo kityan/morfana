@@ -4,7 +4,13 @@ import { MorfanaContext } from '../../contexts/morfana'
 import { Morpheme } from '../morpheme'
 import * as Styled from './styled'
 
-export const Word: FC<WordProps> = ({ className = '', symbolsMap, markupData, debug = false }: WordProps) => {
+export const Word: FC<WordProps> = ({
+  className = '',
+  symbolsMap,
+  markupData,
+  foregroundLetters = true,
+  debug = false,
+}: WordProps) => {
   const { Morfana, wordConfig = {} } = useContext(MorfanaContext)
   const MorfanaConfig = Morfana.getConfig()
 
@@ -19,11 +25,11 @@ export const Word: FC<WordProps> = ({ className = '', symbolsMap, markupData, de
     <Styled.Root className={className} padding={letterHeight / 2}>
       <Styled.Word>
         {markupData.map(({ type, range }, index) => (
-          <MorphemeWrapper className='morphemeWrapper' type={type} range={range} key={index}>
+          <MorphemeWrapper className='morphemeWrapper' type={type} range={range} index={index} key={index}>
             <Morpheme type={type} range={range} index={index} debug={debug} />
           </MorphemeWrapper>
         ))}
-        <Styled.LettersWrapper>
+        <Styled.LettersWrapper $foreground={foregroundLetters}>
           {symbolsMap.map(({ symbol, index }) => (
             <Letter symbol={symbol} index={index} width={letterWidth} height={letterHeight} key={index} debug={debug} />
           ))}

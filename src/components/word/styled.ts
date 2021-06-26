@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { BasicStyledProps, WordRootProps } from '../../types'
+import { BasicStyledProps, WordRootProps, LettersWrapperProps } from '../../types'
 
 export const Root = styled.span<WordRootProps>`
   display: inline-block;
@@ -12,8 +12,8 @@ export const Word = styled.span<BasicStyledProps>`
   z-index: 0;
 `
 
-export const LettersWrapper = styled.span<BasicStyledProps>`
+export const LettersWrapper = styled.span<LettersWrapperProps>`
   display: inline-block;
   position: relative;
-  z-index: 0;
+  z-index: ${({ $foreground }) => ($foreground ? 0 : -1)};
 `

@@ -60,7 +60,12 @@ export interface MorphemeRootProps extends BasicStyledProps, DebugableProps {
   index: MorphemeProps['index']
 }
 
-export interface MorphemeWrapperProps extends BasicStyledProps, MarkupDataItem {}
+export interface MorphemeWrapperProps extends BasicStyledProps, MarkupDataItem {
+  type: MorphemeType
+  range: MorphemeRange
+  index: number
+  key?: number
+}
 
 export type MarkupData = MarkupDataItem[]
 
@@ -96,11 +101,16 @@ export interface WordProps extends DebugableProps {
   className?: string
   symbolsMap: SymbolsMap
   markupData: MarkupData
+  foregroundLetters?: boolean
 }
 
 export interface WordRootProps extends BasicStyledProps {
   className?: string
   padding: number
+}
+
+export interface LettersWrapperProps extends BasicStyledProps {
+  $foreground: boolean
 }
 
 export type ErrorsLogLevel = 'error' | 'warn' | 'info' | 'none'
@@ -161,6 +171,7 @@ export interface MarkedWordProps extends DebugableProps {
   markup: Markup
   word: Word
   config: MarkupPartialConfig
+  foregroundLetters?: boolean
 }
 
 export interface WordConfig {

@@ -1,6 +1,6 @@
 {
   "name": "@foxford/morfana",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Morphemes higlighting library",
   "bugs": {
     "url": "https://github.com/netology-group/morfana/issues"
