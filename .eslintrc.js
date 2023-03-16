@@ -16,12 +16,10 @@ module.exports = {
   extends: [
     require.resolve('eslint-config-airbnb/rules/react'),
     'plugin:jsx-control-statements/recommended',
-    'adequate',
     'plugin:import/typescript',
     'plugin:@typescript-eslint/recommended',
     'plugin:@typescript-eslint/eslint-recommended',
     'plugin:prettier/recommended',
-    'prettier/@typescript-eslint',
     'plugin:jest/recommended',
   ],
   plugins: [

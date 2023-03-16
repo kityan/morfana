@@ -4,7 +4,7 @@ name: npm publish pipeline
 agent:
   machine:
     type: e1-standard-2
-    os_image: ubuntu1804
+    os_image: ubuntu2004
 
 blocks:
   - name: 🛳 Publish at npm
@@ -15,11 +15,13 @@ blocks:
         - name: Publish at npm
           commands:
             - checkout
-            - nvm use
+            - sem-version node $(cat .nvmrc)
             - node --version
             - npm --version
-            - npm ci # Just restoring cache results in issue with node-sass
+            - cache restore npm-cache
+            - cache restore node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),node-modules-$SEMAPHORE_GIT_BRANCH,node-modules-master
+            - npm run build
             - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
-            - source ./scripts/get-tag.sh # set current tag
-            - ./scripts/npm-publish.sh
+            - source ./tools/scripts/npm-tag.sh # set current tag
+            - npx zx ./tools/scripts/npm-publish.mjs
             - rm -rf .npmrc
